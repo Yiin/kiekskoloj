@@ -8,6 +8,7 @@ COPY packages/shared packages/shared
 COPY apps/web apps/web
 RUN cd apps/web && bun run build
 
-FROM alpine:3.19
-COPY --from=builder /app/apps/web/dist /app/dist
-CMD ["true"]
+FROM caddy:2-alpine
+COPY --from=builder /app/apps/web/dist /srv/web
+COPY docker/Caddyfile /etc/caddy/Caddyfile
+EXPOSE 80

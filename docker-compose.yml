@@ -1,15 +1,11 @@
 services:
-  caddy:
-    image: caddy:2-alpine
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
     restart: unless-stopped
     expose:
       - "80"
-    volumes:
-      - ./docker/Caddyfile:/etc/caddy/Caddyfile
-      - web_dist:/srv/web
-    depends_on:
-      web:
-        condition: service_completed_successfully
 
   server:
     build:
@@ -27,13 +23,5 @@ services:
     expose:
       - "3006"
 
-  web:
-    build:
-      context: .
-      dockerfile: docker/web.Dockerfile
-    volumes:
-      - web_dist:/app/dist
-
 volumes:
   server_data:
-  web_dist:
