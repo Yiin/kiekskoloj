@@ -1,6 +1,6 @@
 FROM oven/bun:1 AS builder
 WORKDIR /app
-COPY package.json bun.lock bunfig.toml ./
+COPY package.json bun.lock bunfig.toml tsconfig.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/server/package.json apps/server/
 RUN bun install
