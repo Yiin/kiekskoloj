@@ -1,0 +1,52 @@
+import { Elysia } from "elysia"
+import cors from "@elysiajs/cors"
+import swagger from "@elysiajs/swagger"
+import { authRoutes } from "./features/auth"
+import { groupRoutes } from "./features/groups"
+import { expenseRoutes } from "./features/expenses"
+import { settlementRoutes } from "./features/settlements"
+import { currencyRoutes } from "./features/currencies"
+import { categoryRoutes } from "./features/categories"
+import { uploadRoutes } from "./features/uploads"
+import { activityRoutes } from "./features/activity"
+import { statsRoutes } from "./features/stats"
+import { exportRoutes } from "./features/exports"
+import { recurringRoutes } from "./features/recurring"
+import { wsRoutes } from "./features/ws"
+import { seedDefaultCategories } from "./features/categories/service"
+import { processDueRecurring } from "./features/recurring/service"
+
+const port = parseInt(Bun.env.PORT || "3006")
+
+// Seed global preset categories on startup
+seedDefaultCategories().catch((err) => {
+  console.error("Failed to seed default categories:", err)
+})
+
+// Process due recurring expenses every hour
+setInterval(() => processDueRecurring().catch(console.error), 60 * 60 * 1000)
+
+const app = new Elysia({ prefix: "/api" })
+  .use(cors({
+    origin: true,
+    credentials: true,
+  }))
+  .use(swagger({ path: "/docs" }))
+  .use(authRoutes)
+  .use(groupRoutes)
+  .use(expenseRoutes)
+  .use(settlementRoutes)
+  .use(currencyRoutes)
+  .use(categoryRoutes)
+  .use(uploadRoutes)
+  .use(activityRoutes)
+  .use(statsRoutes)
+  .use(exportRoutes)
+  .use(recurringRoutes)
+  .use(wsRoutes)
+  .get("/health", () => ({ status: "ok" }))
+  .listen(port)
+
+console.log(`Server running at http://localhost:${port}`)
+
+export type App = typeof app

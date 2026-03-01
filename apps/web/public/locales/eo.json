@@ -1,0 +1,33 @@
+{
+  "app": { "name": "Kiekskoloj", "tagline": "Dividu elspezojn kun amikoj" },
+  "auth": {
+    "login": "Ensaluti", "register": "Krei konton", "logout": "Elsaluti",
+    "email": "Retpoŝto", "password": "Pasvorto", "name": "Nomo",
+    "loginAction": "Ensaluti", "registerAction": "Krei konton",
+    "noAccount": "Ĉu vi ne havas konton?", "hasAccount": "Ĉu vi jam havas konton?",
+    "passwordHint": "Almenaŭ 8 signoj"
+  },
+  "groups": {
+    "title": "Grupoj", "newGroup": "Nova grupo", "noGroups": "Ankoraŭ neniuj grupoj",
+    "createFirst": "Kreu vian unuan grupon", "members": "membroj",
+    "settings": "Agordoj", "expenses": "Elspezoj", "balances": "Bilancoj",
+    "delete": "Forigi grupon", "archive": "Arkivi", "unarchive": "Malarkivi"
+  },
+  "expenses": {
+    "title": "Elspezoj", "addExpense": "Aldoni elspezon", "noExpenses": "Ankoraŭ neniuj elspezoj",
+    "editExpense": "Redakti elspezon", "newExpense": "Nova elspezo",
+    "amount": "Sumo", "date": "Dato", "category": "Kategorio", "note": "Noto",
+    "paidBy": "Pagis", "splitMethod": "Dividmaniero",
+    "equal": "Egale", "percentage": "Procente", "byAmount": "Laŭ sumo", "shares": "Partoj"
+  },
+  "settlements": {
+    "title": "Reguligoj", "currentDebts": "Aktualaj ŝuldoj",
+    "history": "Regulig-historio", "noDebts": "Ĉio reguligita!",
+    "settle": "Reguligi", "record": "Registri reguligon"
+  },
+  "common": {
+    "save": "Konservi", "cancel": "Nuligi", "delete": "Forigi",
+    "loading": "Ŝargante...", "error": "Io misokazis",
+    "confirm": "Ĉu vi certas?"
+  }
+}

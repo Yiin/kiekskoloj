@@ -1,0 +1,33 @@
+{
+  "app": { "name": "Kiekskoloj", "tagline": "Split expenses with friends" },
+  "auth": {
+    "login": "Log in", "register": "Create account", "logout": "Logout",
+    "email": "Email", "password": "Password", "name": "Name",
+    "loginAction": "Log in", "registerAction": "Create account",
+    "noAccount": "Don't have an account?", "hasAccount": "Already have an account?",
+    "passwordHint": "At least 8 characters"
+  },
+  "groups": {
+    "title": "Groups", "newGroup": "New Group", "noGroups": "No groups yet",
+    "createFirst": "Create your first group", "members": "members",
+    "settings": "Settings", "expenses": "Expenses", "balances": "Balances",
+    "delete": "Delete group", "archive": "Archive", "unarchive": "Unarchive"
+  },
+  "expenses": {
+    "title": "Expenses", "addExpense": "Add Expense", "noExpenses": "No expenses yet",
+    "editExpense": "Edit Expense", "newExpense": "New Expense",
+    "amount": "Amount", "date": "Date", "category": "Category", "note": "Note",
+    "paidBy": "Paid by", "splitMethod": "Split method",
+    "equal": "Equal", "percentage": "Percentage", "byAmount": "Amount", "shares": "Shares"
+  },
+  "settlements": {
+    "title": "Settlements", "currentDebts": "Current Debts",
+    "history": "Settlement History", "noDebts": "All settled up!",
+    "settle": "Settle", "record": "Record settlement"
+  },
+  "common": {
+    "save": "Save", "cancel": "Cancel", "delete": "Delete",
+    "loading": "Loading...", "error": "Something went wrong",
+    "confirm": "Are you sure?"
+  }
+}

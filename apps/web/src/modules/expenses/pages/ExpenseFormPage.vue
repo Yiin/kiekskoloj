@@ -1,0 +1,414 @@
+<template>
+  <div>
+    <div v-if="pageLoading" class="space-y-4">
+      <div class="h-8 w-48 rounded bg-muted animate-pulse" />
+      <div class="h-64 rounded-lg bg-muted animate-pulse mt-6" />
+    </div>
+
+    <div v-else-if="pageError" class="text-center py-16">
+      <p class="text-destructive mb-4">{{ pageError }}</p>
+      <RouterLink
+        :to="`/groups/${groupId}`"
+        class="text-sm text-primary hover:underline"
+      >
+        Back to group
+      </RouterLink>
+    </div>
+
+    <div v-else>
+      <div class="flex items-center gap-3 mb-6">
+        <RouterLink
+          :to="`/groups/${groupId}`"
+          class="text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </RouterLink>
+        <h1 class="text-2xl font-bold">
+          {{ isEditing ? "Edit Expense" : "New Expense" }}
+        </h1>
+      </div>
+
+      <form @submit.prevent="handleSubmit" class="space-y-6 max-w-lg">
+        <!-- Section 1: Basic Info -->
+        <section class="space-y-4">
+          <div>
+            <label
+              for="expense-title"
+              class="block text-sm font-medium text-foreground mb-1"
+            >
+              Title
+            </label>
+            <input
+              id="expense-title"
+              v-model="form.title"
+              type="text"
+              required
+              maxlength="200"
+              placeholder="Dinner, taxi, groceries..."
+              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
+          <div class="flex gap-4">
+            <div class="flex-1">
+              <label
+                for="expense-amount"
+                class="block text-sm font-medium text-foreground mb-1"
+              >
+                Amount
+              </label>
+              <div class="relative">
+                <input
+                  id="expense-amount"
+                  v-model="amountInput"
+                  type="number"
+                  required
+                  min="0.01"
+                  step="0.01"
+                  placeholder="0.00"
+                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring pr-14"
+                />
+                <span
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
+                >
+                  {{ groupCurrency }}
+                </span>
+              </div>
+            </div>
+
+            <div class="w-40">
+              <label
+                for="expense-date"
+                class="block text-sm font-medium text-foreground mb-1"
+              >
+                Date
+              </label>
+              <input
+                id="expense-date"
+                v-model="form.date"
+                type="date"
+                required
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              for="expense-category"
+              class="block text-sm font-medium text-foreground mb-1"
+            >
+              Category
+            </label>
+            <select
+              id="expense-category"
+              v-model="form.categoryId"
+              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">No category</option>
+              <option
+                v-for="cat in DEFAULT_CATEGORIES"
+                :key="cat.name"
+                :value="cat.name"
+              >
+                {{ cat.name }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              for="expense-note"
+              class="block text-sm font-medium text-foreground mb-1"
+            >
+              Note
+            </label>
+            <textarea
+              id="expense-note"
+              v-model="form.note"
+              rows="2"
+              maxlength="500"
+              placeholder="Optional note..."
+              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+            />
+          </div>
+        </section>
+
+        <!-- Section 2: Who Paid -->
+        <section
+          class="border border-border rounded-lg p-4"
+        >
+          <PayerSelector
+            v-model="form.payers"
+            :members="groupStore.members"
+            :amount="amountCents"
+            :currency="groupCurrency"
+          />
+        </section>
+
+        <!-- Section 3: Split Method -->
+        <section class="border border-border rounded-lg p-4">
+          <SplitMethodSelector
+            v-model="form.splitMethod"
+            :members="groupStore.members"
+            :amount="amountCents"
+            :currency="groupCurrency"
+            :splits="form.splits"
+            @update:splits="form.splits = $event"
+          />
+        </section>
+
+        <!-- Section 4: Actions -->
+        <div v-if="submitError" class="text-sm text-destructive">
+          {{ submitError }}
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button
+            type="submit"
+            :disabled="submitting"
+            class="px-6 py-2 text-sm rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          >
+            {{ submitting ? "Saving..." : isEditing ? "Update" : "Create" }}
+          </button>
+          <RouterLink
+            :to="`/groups/${groupId}`"
+            class="px-4 py-2 text-sm rounded-md border border-border text-foreground hover:bg-accent"
+          >
+            Cancel
+          </RouterLink>
+          <button
+            v-if="isEditing"
+            type="button"
+            class="ml-auto px-4 py-2 text-sm rounded-md text-destructive border border-destructive hover:bg-destructive hover:text-destructive-foreground"
+            :disabled="deleting"
+            @click="handleDelete"
+          >
+            {{ deleting ? "Deleting..." : "Delete" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted, watch } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import type { SplitMethod } from "@kiekskoloj/shared"
+import { DEFAULT_CATEGORIES } from "@kiekskoloj/shared"
+import { useExpensesStore } from "@/stores/expenses"
+import { useGroupsStore } from "@/stores/groups"
+import PayerSelector from "../components/PayerSelector.vue"
+import SplitMethodSelector from "../components/SplitMethodSelector.vue"
+
+const route = useRoute()
+const router = useRouter()
+const expensesStore = useExpensesStore()
+const groupStore = useGroupsStore()
+
+const groupId = route.params.id as string
+const expenseId = route.params.expenseId as string | undefined
+const isEditing = computed(() => !!expenseId)
+
+const pageLoading = ref(true)
+const pageError = ref("")
+const submitting = ref(false)
+const deleting = ref(false)
+const submitError = ref("")
+
+const amountInput = ref("")
+
+const groupCurrency = computed(
+  () => groupStore.currentGroup?.currency || "EUR",
+)
+
+const amountCents = computed(() =>
+  Math.round((parseFloat(amountInput.value) || 0) * 100),
+)
+
+interface SplitEntry {
+  memberId: string
+  amount: number
+  shares: number | null
+  percentage?: number
+}
+
+const form = reactive({
+  title: "",
+  date: new Date().toISOString().slice(0, 10),
+  categoryId: "",
+  note: "",
+  splitMethod: "equal" as SplitMethod,
+  payers: [] as { memberId: string; amount: number }[],
+  splits: [] as SplitEntry[],
+})
+
+function initSplitsForAllMembers() {
+  const members = groupStore.members
+  if (members.length === 0) return
+  const count = members.length
+  const share = count > 0 && amountCents.value > 0 ? Math.floor(amountCents.value / count) : 0
+  const remainder = count > 0 && amountCents.value > 0 ? amountCents.value - share * count : 0
+  form.splits = members.map((m, i) => ({
+    memberId: m.id,
+    amount: share + (i < remainder ? 1 : 0),
+    shares: null,
+  }))
+}
+
+// Re-split when amount changes and method is equal
+watch(amountCents, () => {
+  if (form.splitMethod === "equal") {
+    const included = form.splits.filter((s) => s.amount > 0 || form.splits.length === groupStore.members.length)
+    const memberIds = included.length > 0 ? included.map((s) => s.memberId) : groupStore.members.map((m) => m.id)
+    const count = memberIds.length
+    if (count > 0) {
+      const share = Math.floor(amountCents.value / count)
+      const remainder = amountCents.value - share * count
+      form.splits = memberIds.map((id, i) => ({
+        memberId: id,
+        amount: share + (i < remainder ? 1 : 0),
+        shares: null,
+      }))
+    }
+  }
+  // Update single payer amount
+  if (form.payers.length === 1) {
+    form.payers = [{ memberId: form.payers[0].memberId, amount: amountCents.value }]
+  }
+})
+
+onMounted(async () => {
+  try {
+    // Make sure group data is loaded
+    if (!groupStore.currentGroup || groupStore.currentGroup.id !== groupId) {
+      await groupStore.fetchGroup(groupId)
+    }
+
+    if (isEditing.value && expenseId) {
+      const expense = await expensesStore.fetchExpense(groupId, expenseId)
+      form.title = expense.title
+      form.date = new Date(expense.date).toISOString().slice(0, 10)
+      form.categoryId = expense.categoryId || ""
+      form.note = expense.note || ""
+      form.splitMethod = expense.splitMethod
+      amountInput.value = (expense.amount / 100).toFixed(2)
+      form.payers = expense.payers.map((p) => ({
+        memberId: p.memberId,
+        amount: p.amount,
+      }))
+      form.splits = expense.splits.map((s) => ({
+        memberId: s.memberId,
+        amount: s.amount,
+        shares: s.shares,
+      }))
+    } else {
+      // Default: first member is payer, equal split among all
+      if (groupStore.members.length > 0) {
+        form.payers = [
+          {
+            memberId: groupStore.members[0].id,
+            amount: amountCents.value,
+          },
+        ]
+        initSplitsForAllMembers()
+      }
+    }
+  } catch (e: any) {
+    pageError.value = e.message || "Failed to load"
+  } finally {
+    pageLoading.value = false
+  }
+})
+
+// When split method changes, reinitialize splits
+watch(
+  () => form.splitMethod,
+  (method) => {
+    const members = groupStore.members
+    if (method === "equal") {
+      initSplitsForAllMembers()
+    } else if (method === "shares") {
+      form.splits = members.map((m) => ({
+        memberId: m.id,
+        amount: Math.round(amountCents.value / members.length),
+        shares: 1,
+      }))
+      // Fix rounding
+      if (members.length > 0) {
+        const total = form.splits.reduce((s, e) => s + e.amount, 0)
+        form.splits[form.splits.length - 1].amount += amountCents.value - total
+      }
+    } else {
+      form.splits = members.map((m) => ({
+        memberId: m.id,
+        amount: 0,
+        shares: null,
+        percentage: 0,
+      }))
+    }
+  },
+)
+
+async function handleSubmit() {
+  if (!form.title.trim() || amountCents.value <= 0) return
+
+  submitting.value = true
+  submitError.value = ""
+
+  const payload = {
+    title: form.title.trim(),
+    amount: amountCents.value,
+    currency: groupCurrency.value,
+    date: new Date(form.date).getTime(),
+    categoryId: form.categoryId || null,
+    note: form.note.trim() || null,
+    splitMethod: form.splitMethod,
+    payers: form.payers.map((p) => ({
+      memberId: p.memberId,
+      amount: p.amount,
+    })),
+    splits: form.splits
+      .filter((s) => s.amount > 0 || (s.shares ?? 0) > 0)
+      .map((s) => ({
+        memberId: s.memberId,
+        amount: s.amount,
+        shares: s.shares,
+      })),
+  }
+
+  try {
+    if (isEditing.value && expenseId) {
+      await expensesStore.updateExpense(groupId, expenseId, payload)
+    } else {
+      await expensesStore.createExpense(groupId, payload)
+    }
+    router.push(`/groups/${groupId}`)
+  } catch (e: any) {
+    submitError.value = e.message || "Failed to save expense"
+  } finally {
+    submitting.value = false
+  }
+}
+
+async function handleDelete() {
+  if (!expenseId || !confirm("Delete this expense?")) return
+  deleting.value = true
+  try {
+    await expensesStore.deleteExpense(groupId, expenseId)
+    router.push(`/groups/${groupId}`)
+  } catch (e: any) {
+    submitError.value = e.message || "Failed to delete"
+  } finally {
+    deleting.value = false
+  }
+}
+</script>

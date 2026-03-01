@@ -1,0 +1,44 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - web_dist:/srv/web
+    depends_on:
+      web:
+        condition: service_completed_successfully
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+    restart: unless-stopped
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production}
+      - DATABASE_PATH=/data/kiekskoloj.db
+      - UPLOAD_PATH=/data/uploads
+      - PORT=3006
+      - NODE_ENV=production
+    volumes:
+      - server_data:/data
+    expose:
+      - "3006"
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    volumes:
+      - web_dist:/app/dist
+
+volumes:
+  caddy_data:
+  caddy_config:
+  server_data:
+  web_dist:

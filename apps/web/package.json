@@ -1,0 +1,36 @@
+{
+  "name": "@kiekskoloj/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5176",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@kiekskoloj/shared": "workspace:*",
+    "@vueuse/core": "^12.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-vue-next": "^0.474.0",
+    "pinia": "^3.0.0",
+    "radix-vue": "^1.9.0",
+    "tailwind-merge": "^3.0.0",
+    "vue": "^3.5.0",
+    "vue-i18n": "^11.2.8",
+    "vue-router": "^4.5.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/node": "latest",
+    "@vitejs/plugin-vue": "^5.2.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^3.0.0"
+  }
+}

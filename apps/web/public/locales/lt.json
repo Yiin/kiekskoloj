@@ -1,0 +1,33 @@
+{
+  "app": { "name": "Kiekskoloj", "tagline": "Dalinkis išlaidas su draugais" },
+  "auth": {
+    "login": "Prisijungti", "register": "Sukurti paskyrą", "logout": "Atsijungti",
+    "email": "El. paštas", "password": "Slaptažodis", "name": "Vardas",
+    "loginAction": "Prisijungti", "registerAction": "Sukurti paskyrą",
+    "noAccount": "Neturite paskyros?", "hasAccount": "Jau turite paskyrą?",
+    "passwordHint": "Bent 8 simboliai"
+  },
+  "groups": {
+    "title": "Grupės", "newGroup": "Nauja grupė", "noGroups": "Grupių dar nėra",
+    "createFirst": "Sukurkite pirmąją grupę", "members": "nariai",
+    "settings": "Nustatymai", "expenses": "Išlaidos", "balances": "Balansai",
+    "delete": "Ištrinti grupę", "archive": "Archyvuoti", "unarchive": "Atarchyvuoti"
+  },
+  "expenses": {
+    "title": "Išlaidos", "addExpense": "Pridėti išlaidą", "noExpenses": "Išlaidų dar nėra",
+    "editExpense": "Redaguoti išlaidą", "newExpense": "Nauja išlaida",
+    "amount": "Suma", "date": "Data", "category": "Kategorija", "note": "Pastaba",
+    "paidBy": "Mokėjo", "splitMethod": "Dalinimo būdas",
+    "equal": "Po lygiai", "percentage": "Procentais", "byAmount": "Suma", "shares": "Dalimis"
+  },
+  "settlements": {
+    "title": "Atsiskaitymai", "currentDebts": "Dabartinės skolos",
+    "history": "Atsiskaitymų istorija", "noDebts": "Viskas atsiskaityta!",
+    "settle": "Atsiskaityti", "record": "Įrašyti atsiskaitymą"
+  },
+  "common": {
+    "save": "Išsaugoti", "cancel": "Atšaukti", "delete": "Ištrinti",
+    "loading": "Kraunama...", "error": "Kažkas nutiko ne taip",
+    "confirm": "Ar tikrai?"
+  }
+}
