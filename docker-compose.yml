@@ -2,13 +2,10 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
+    expose:
+      - "80"
     volumes:
       - ./docker/Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
       - web_dist:/srv/web
     depends_on:
       web:
@@ -38,7 +35,5 @@ services:
       - web_dist:/app/dist
 
 volumes:
-  caddy_data:
-  caddy_config:
   server_data:
   web_dist:
