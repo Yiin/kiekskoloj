@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json bun.lock bunfig.toml ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/server/package.json apps/server/
-RUN bun install --frozen-lockfile
+RUN bun install
 COPY packages/shared packages/shared
 COPY apps/server apps/server
 RUN cd apps/server && bun build src/index.ts --outdir dist --target bun
