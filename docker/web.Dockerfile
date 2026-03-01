@@ -10,3 +10,4 @@ RUN cd apps/web && bun run build
 
 FROM alpine:3.19
 COPY --from=builder /app/apps/web/dist /app/dist
+CMD ["true"]
