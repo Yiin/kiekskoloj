@@ -1,22 +1,17 @@
 import { Elysia } from "elysia"
-import { jwtPlugin } from "../lib/auth"
 
 export const authGuard = new Elysia({ name: "auth-guard" })
-  .use(jwtPlugin)
-  .derive({ as: "scoped" }, async ({ jwt, cookie: { auth } }) => {
-    if (!auth?.value) return { userId: null as string | null }
-    const payload = await jwt.verify(auth.value)
-    if (!payload || !payload.sub) return { userId: null as string | null }
-    return { userId: payload.sub as string }
+  .derive({ as: "scoped" }, ({ cookie: { session } }) => {
+    return { memberToken: (session?.value as string) || null }
   })
   .macro({
     requireAuth(enabled: boolean) {
       if (!enabled) return
       return {
-        beforeHandle({ userId, set }) {
-          if (!userId) {
+        beforeHandle({ memberToken, set }) {
+          if (!memberToken) {
             set.status = 401
-            return { error: "UNAUTHORIZED", message: "Authentication required" }
+            return { error: "UNAUTHORIZED", message: "Session required" }
           }
         }
       }

@@ -11,7 +11,7 @@
           <div class="space-y-4">
             <div>
               <label for="group-name" class="block text-sm font-medium text-foreground mb-1">
-                Name
+                Group Name
               </label>
               <input
                 id="group-name"
@@ -20,6 +20,21 @@
                 required
                 maxlength="100"
                 placeholder="Trip to Japan"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            <div>
+              <label for="member-name" class="block text-sm font-medium text-foreground mb-1">
+                Your Name
+              </label>
+              <input
+                id="member-name"
+                v-model="form.memberName"
+                type="text"
+                required
+                maxlength="50"
+                placeholder="Alice"
                 class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -114,6 +129,7 @@ const presetColors = [
 
 const form = reactive({
   name: "",
+  memberName: "",
   currency: "EUR",
   color: presetColors[4],
 })
@@ -126,6 +142,7 @@ const error = ref("")
 function close() {
   emit("close")
   form.name = ""
+  form.memberName = ""
   form.currency = "EUR"
   form.color = presetColors[4]
   error.value = ""
@@ -138,6 +155,7 @@ async function handleSubmit() {
   try {
     const group = await store.createGroup({
       name: form.name.trim(),
+      memberName: form.memberName.trim(),
       currency: form.currency,
       color: form.color,
     })

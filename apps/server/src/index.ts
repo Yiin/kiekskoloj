@@ -1,7 +1,6 @@
 import { Elysia } from "elysia"
 import cors from "@elysiajs/cors"
 import swagger from "@elysiajs/swagger"
-import { authRoutes } from "./features/auth"
 import { groupRoutes } from "./features/groups"
 import { expenseRoutes } from "./features/expenses"
 import { settlementRoutes } from "./features/settlements"
@@ -32,7 +31,6 @@ const app = new Elysia({ prefix: "/api" })
     credentials: true,
   }))
   .use(swagger({ path: "/docs" }))
-  .use(authRoutes)
   .use(groupRoutes)
   .use(expenseRoutes)
   .use(settlementRoutes)

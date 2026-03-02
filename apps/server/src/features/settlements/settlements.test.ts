@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test"
 import { Elysia } from "elysia"
 import { setupTestDb } from "../../test-utils"
-import { authRoutes } from "../auth"
 import { groupRoutes } from "../groups"
 import { settlementRoutes } from "."
 import { db } from "../../lib/db"
@@ -12,7 +11,6 @@ let cleanup: () => void
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
-    .use(authRoutes)
     .use(groupRoutes)
     .use(settlementRoutes)
 }
@@ -35,11 +33,11 @@ async function req(
   return app.handle(new Request(`http://localhost${path}`, init))
 }
 
-function getAuthCookie(res: Response): string | null {
+function getSessionCookie(res: Response): string | null {
   const setCookie = res.headers.getSetCookie?.()
   if (!setCookie) return null
   for (const c of setCookie) {
-    if (c.startsWith("auth=")) return c
+    if (c.startsWith("session=")) return c
   }
   return null
 }
@@ -48,26 +46,6 @@ function cookieValue(setCookie: string): string {
   return setCookie.split(";")[0]
 }
 
-async function registerUser(
-  app: ReturnType<typeof buildApp>,
-  email: string,
-  name: string,
-) {
-  const res = await req(app, "POST", "/api/auth/register", {
-    email,
-    name,
-    password: "testpassword123",
-  })
-  const cookie = getAuthCookie(res)
-  const body = (await res.json()) as any
-  return { cookie: cookieValue(cookie!), user: body.user }
-}
-
-/**
- * Insert an expense directly into the DB.
- * payers: array of { memberId, amount }
- * splits: array of { memberId, amount }
- */
 async function insertExpense(
   groupId: string,
   createdBy: string,
@@ -115,9 +93,6 @@ async function insertExpense(
 describe("Settlements & Balances", () => {
   let app: ReturnType<typeof buildApp>
   let user1Cookie: string
-  let user1: any
-  let user2Cookie: string
-  let user2: any
   let outsiderCookie: string
   let groupId: string
   let member1Id: string
@@ -129,24 +104,14 @@ describe("Settlements & Balances", () => {
     cleanup = ctx.cleanup
     app = buildApp()
 
-    // Register two users
-    const u1 = await registerUser(app, "alice@test.com", "Alice")
-    user1Cookie = u1.cookie
-    user1 = u1.user
-
-    const u2 = await registerUser(app, "bob@test.com", "Bob")
-    user2Cookie = u2.cookie
-    user2 = u2.user
-
-    // Register outsider
-    const outsider = await registerUser(app, "outsider@test.com", "Outsider")
-    outsiderCookie = outsider.cookie
-
     // User1 creates a group
     const createRes = await req(app, "POST", "/api/groups", {
       name: "Test Group",
+      memberName: "Alice",
       currency: "EUR",
-    }, { Cookie: user1Cookie })
+    })
+    const sessionCookie = getSessionCookie(createRes)
+    user1Cookie = cookieValue(sessionCookie!)
     const createBody = (await createRes.json()) as any
     groupId = createBody.group.id
     member1Id = createBody.group.members[0].id
@@ -155,14 +120,20 @@ describe("Settlements & Balances", () => {
     const inviteCode = createBody.group.inviteCode
     const joinRes = await req(app, "POST", `/api/groups/join/${inviteCode}`, {
       name: "Bob",
-    }, { Cookie: user2Cookie })
+    })
     const joinBody = (await joinRes.json()) as any
     member2Id = joinBody.member.id
 
+    // Outsider creates a separate group
+    const outsiderRes = await req(app, "POST", "/api/groups", {
+      name: "Outsider Group",
+      memberName: "Outsider",
+    })
+    const outsiderSessionCookie = getSessionCookie(outsiderRes)
+    outsiderCookie = cookieValue(outsiderSessionCookie!)
+
     // Create expenses to establish balances:
     // Alice paid 100, split equally between Alice and Bob
-    // So Alice paid 100, owes 50 -> net +50
-    // Bob paid 0, owes 50 -> net -50
     await insertExpense(groupId, member1Id, 100, [
       { memberId: member1Id, amount: 100 },
     ], [
@@ -188,9 +159,7 @@ describe("Settlements & Balances", () => {
     const aliceBal = body.balances.find((b: any) => b.memberId === member1Id)
     const bobBal = body.balances.find((b: any) => b.memberId === member2Id)
 
-    // Alice: paid 100 - owed 50 = +50 (is owed money)
     expect(aliceBal.balance).toBe(50)
-    // Bob: paid 0 - owed 50 = -50 (owes money)
     expect(bobBal.balance).toBe(-50)
   })
 
@@ -203,8 +172,8 @@ describe("Settlements & Balances", () => {
 
     expect(body.debts).toBeDefined()
     expect(body.debts).toHaveLength(1)
-    expect(body.debts[0].from).toBe(member2Id) // Bob owes
-    expect(body.debts[0].to).toBe(member1Id)   // Alice is owed
+    expect(body.debts[0].from).toBe(member2Id)
+    expect(body.debts[0].to).toBe(member1Id)
     expect(body.debts[0].amount).toBe(50)
   })
 
@@ -251,10 +220,6 @@ describe("Settlements & Balances", () => {
     const aliceBal = body.balances.find((b: any) => b.memberId === member1Id)
     const bobBal = body.balances.find((b: any) => b.memberId === member2Id)
 
-    // Settlement: Bob sent 20 to Alice.
-    // balance = paid - owed + sent - received
-    // Alice: 100 - 50 + 0 - 20 = 30 (received settlement reduces her credit)
-    // Bob: 0 - 50 + 20 - 0 = -30 (sent settlement reduces his debt)
     expect(aliceBal.balance).toBe(30)
     expect(bobBal.balance).toBe(-30)
   })
@@ -273,7 +238,6 @@ describe("Settlements & Balances", () => {
   })
 
   test("After full settlement, members have zero balance", async () => {
-    // Create another settlement for the remaining 30
     const res = await req(app, "POST", `/api/groups/${groupId}/settlements`, {
       fromId: member2Id,
       toId: member1Id,
@@ -283,7 +247,6 @@ describe("Settlements & Balances", () => {
     }, { Cookie: user1Cookie })
     expect(res.status).toBe(200)
 
-    // Check balances
     const balRes = await req(app, "GET", `/api/groups/${groupId}/balances`, undefined, {
       Cookie: user1Cookie,
     })
@@ -308,7 +271,6 @@ describe("Settlements & Balances", () => {
     )
     expect(res.status).toBe(204)
 
-    // Verify it's removed from listing
     const listRes = await req(app, "GET", `/api/groups/${groupId}/settlements`, undefined, {
       Cookie: user1Cookie,
     })

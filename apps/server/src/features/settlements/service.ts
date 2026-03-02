@@ -23,7 +23,7 @@ export async function createSettlement(
     date: number
     note?: string
   },
-  userId?: string,
+  senderToken?: string,
 ) {
   const id = nanoid()
   const now = Date.now()
@@ -47,7 +47,7 @@ export async function createSettlement(
 
   // Broadcast and log activity (fire-and-forget)
   if (settlement) {
-    wsManager.broadcast(groupId, { type: "settlement:created", groupId, settlement }, userId)
+    wsManager.broadcast(groupId, { type: "settlement:created", groupId, settlement }, senderToken)
     logActivity(groupId, memberId, "settlement_created", "settlement", id, { amount: data.amount, fromId: data.fromId, toId: data.toId }).catch(() => {})
   }
 
@@ -76,13 +76,13 @@ export async function deleteSettlement(
   settlementId: string,
   groupId?: string,
   memberId?: string,
-  userId?: string,
+  senderToken?: string,
 ) {
   await db.delete(settlements).where(eq(settlements.id, settlementId))
 
   // Broadcast and log activity (fire-and-forget)
   if (groupId && memberId) {
-    wsManager.broadcast(groupId, { type: "settlement:deleted", groupId, settlementId }, userId)
+    wsManager.broadcast(groupId, { type: "settlement:deleted", groupId, settlementId }, senderToken)
     logActivity(groupId, memberId, "settlement_deleted", "settlement", settlementId).catch(() => {})
   }
 }

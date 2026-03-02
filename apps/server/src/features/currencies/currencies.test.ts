@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeAll, afterAll, mock } from "bun:test"
 import { Elysia } from "elysia"
 import { setupTestDb } from "../../test-utils"
-import { authRoutes } from "../auth"
 import { groupRoutes } from "../groups"
 import { expenseRoutes } from "../expenses"
 import { settlementRoutes } from "../settlements"
@@ -15,7 +14,6 @@ let cleanup: () => void
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
-    .use(authRoutes)
     .use(groupRoutes)
     .use(expenseRoutes)
     .use(settlementRoutes)
@@ -40,32 +38,17 @@ async function req(
   return app.handle(new Request(`http://localhost${path}`, init))
 }
 
-function getAuthCookie(res: Response): string | null {
+function getSessionCookie(res: Response): string | null {
   const setCookie = res.headers.getSetCookie?.()
   if (!setCookie) return null
   for (const c of setCookie) {
-    if (c.startsWith("auth=")) return c
+    if (c.startsWith("session=")) return c
   }
   return null
 }
 
 function cookieValue(setCookie: string): string {
   return setCookie.split(";")[0]
-}
-
-async function registerUser(
-  app: ReturnType<typeof buildApp>,
-  email: string,
-  name: string,
-) {
-  const res = await req(app, "POST", "/api/auth/register", {
-    email,
-    name,
-    password: "testpassword123",
-  })
-  const cookie = getAuthCookie(res)
-  const body = (await res.json()) as any
-  return { cookie: cookieValue(cookie!), user: body.user }
 }
 
 describe("Currencies", () => {
@@ -89,7 +72,6 @@ describe("Currencies", () => {
     expect(Array.isArray(body.currencies)).toBe(true)
     expect(body.currencies.length).toBeGreaterThan(0)
 
-    // Each currency should have code, name, symbol
     const eur = body.currencies.find((c: any) => c.code === "EUR")
     expect(eur).toBeDefined()
     expect(eur.name).toBe("Euro")
@@ -97,7 +79,6 @@ describe("Currencies", () => {
   })
 
   test("GET /currencies/rates returns exchange rates from cache", async () => {
-    // Seed some cached rates
     const now = Date.now()
     await db.insert(exchangeRates).values([
       { base: "EUR", target: "USD", rate: 1.08, fetchedAt: now },
@@ -143,15 +124,14 @@ describe("Multi-currency expenses", () => {
       { base: "GBP", target: "EUR", rate: 1.17, fetchedAt: now },
     ])
 
-    // Register user
-    const user = await registerUser(app, "multicurrency@test.com", "Currency User")
-    userCookie = user.cookie
-
-    // Create group with EUR as default currency
+    // Create group (sets session cookie)
     const groupRes = await req(app, "POST", "/api/groups", {
       name: "Multi-Currency Group",
+      memberName: "Currency User",
       currency: "EUR",
-    }, { Cookie: userCookie })
+    })
+    const sessionCookie = getSessionCookie(groupRes)
+    userCookie = cookieValue(sessionCookie!)
     const groupBody = (await groupRes.json()) as any
     groupId = groupBody.group.id
     memberId = groupBody.group.members[0].id
@@ -213,13 +193,13 @@ describe("Multi-currency expenses", () => {
       { base: "USD", target: "EUR", rate: 0.92, fetchedAt: now },
     ])
 
-    const user = await registerUser(app2, "balance-test@test.com", "Balance Tester")
-    const cookie = user.cookie
-
     const groupRes = await req(app2, "POST", "/api/groups", {
       name: "Balance Test Group",
+      memberName: "Balance Tester",
       currency: "EUR",
-    }, { Cookie: cookie })
+    })
+    const sessionCookie = getSessionCookie(groupRes)
+    const cookie = cookieValue(sessionCookie!)
     const gBody = (await groupRes.json()) as any
     const gId = gBody.group.id
     const m1Id = gBody.group.members[0].id
@@ -242,7 +222,6 @@ describe("Multi-currency expenses", () => {
     }, { Cookie: cookie })
 
     // Create USD expense: m1 paid 50 USD, split equally (25 each)
-    // exchangeRate should be 0.92 (USD->EUR)
     await req(app2, "POST", `/api/groups/${gId}/expenses`, {
       title: "USD Lunch",
       amount: 50,

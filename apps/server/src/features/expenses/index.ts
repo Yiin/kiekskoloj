@@ -84,7 +84,7 @@ export const expenseRoutes = new Elysia({ prefix: "/groups" })
     }),
   })
 
-  .post("/:groupId/expenses", async ({ params, member, body, set, userId }) => {
+  .post("/:groupId/expenses", async ({ params, member, body, set, memberToken }) => {
     if (!member) {
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
@@ -124,7 +124,7 @@ export const expenseRoutes = new Elysia({ prefix: "/groups" })
       }
     }
 
-    const expense = await createExpense(params.groupId, member.id, body, userId!)
+    const expense = await createExpense(params.groupId, member.id, body, memberToken!)
     return { expense }
   }, {
     requireAuth: true,
@@ -144,7 +144,7 @@ export const expenseRoutes = new Elysia({ prefix: "/groups" })
     return { expense }
   }, { requireAuth: true })
 
-  .put("/:groupId/expenses/:expenseId", async ({ params, member, body, set, userId }) => {
+  .put("/:groupId/expenses/:expenseId", async ({ params, member, body, set, memberToken }) => {
     if (!member) {
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
@@ -190,14 +190,14 @@ export const expenseRoutes = new Elysia({ prefix: "/groups" })
       }
     }
 
-    const expense = await updateExpense(params.expenseId, body, params.groupId, member.id, userId!)
+    const expense = await updateExpense(params.expenseId, body, params.groupId, member.id, memberToken!)
     return { expense }
   }, {
     requireAuth: true,
     body: expenseBody,
   })
 
-  .delete("/:groupId/expenses/:expenseId", async ({ params, member, set, userId }) => {
+  .delete("/:groupId/expenses/:expenseId", async ({ params, member, set, memberToken }) => {
     if (!member) {
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
@@ -207,6 +207,6 @@ export const expenseRoutes = new Elysia({ prefix: "/groups" })
       set.status = 404
       return { error: "NOT_FOUND", message: "Expense not found" }
     }
-    await deleteExpense(params.expenseId, params.groupId, member.id, userId!)
+    await deleteExpense(params.expenseId, params.groupId, member.id, memberToken!)
     set.status = 204
   }, { requireAuth: true })

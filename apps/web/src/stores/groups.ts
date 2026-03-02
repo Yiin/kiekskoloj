@@ -4,26 +4,26 @@ import type { Group, GroupMember } from "@kiekskoloj/shared"
 import { useApi } from "@/composables/useApi"
 
 export const useGroupsStore = defineStore("groups", () => {
-  const groups = ref<(Group & { memberCount: number })[]>([])
+  const groups = ref<Group[]>([])
   const currentGroup = ref<Group | null>(null)
   const members = ref<GroupMember[]>([])
   const api = useApi()
 
   async function fetchGroups() {
-    const res = await api.get<{ groups: (Group & { memberCount: number })[] }>("/groups")
+    const res = await api.get<{ groups: Group[] }>("/groups")
     groups.value = res.groups
   }
 
-  async function createGroup(data: { name: string; currency: string; color?: string }) {
-    const res = await api.post<{ group: Group & { memberCount: number } }>("/groups", data)
+  async function createGroup(data: { name: string; memberName: string; currency: string; color?: string }) {
+    const res = await api.post<{ group: Group }>("/groups", data)
     groups.value.push(res.group)
     return res.group
   }
 
   async function fetchGroup(id: string) {
-    const res = await api.get<{ group: Group; members: GroupMember[] }>(`/groups/${id}`)
+    const res = await api.get<{ group: Group & { members: GroupMember[] } }>(`/groups/${id}`)
     currentGroup.value = res.group
-    members.value = res.members
+    members.value = res.group.members
     return res.group
   }
 
@@ -66,8 +66,8 @@ export const useGroupsStore = defineStore("groups", () => {
     members.value = members.value.filter((m) => m.id !== memberId)
   }
 
-  async function joinGroup(inviteCode: string) {
-    const res = await api.post<{ group: Group; member: GroupMember }>(`/groups/join/${inviteCode}`)
+  async function joinGroup(inviteCode: string, name: string) {
+    const res = await api.post<{ group: Group; member: GroupMember }>(`/groups/join/${inviteCode}`, { name })
     return res.group
   }
 

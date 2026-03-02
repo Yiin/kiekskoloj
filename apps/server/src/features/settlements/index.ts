@@ -29,12 +29,12 @@ export const settlementRoutes = new Elysia({ prefix: "/groups" })
     }),
   })
 
-  .post("/:groupId/settlements", async ({ params, member, body, set, userId }) => {
+  .post("/:groupId/settlements", async ({ params, member, body, set, memberToken }) => {
     if (!member) {
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
     }
-    const settlement = await createSettlement(params.groupId, member.id, body, userId!)
+    const settlement = await createSettlement(params.groupId, member.id, body, memberToken!)
     return { settlement }
   }, {
     requireAuth: true,
@@ -48,12 +48,12 @@ export const settlementRoutes = new Elysia({ prefix: "/groups" })
     }),
   })
 
-  .delete("/:groupId/settlements/:settlementId", async ({ params, member, set, userId }) => {
+  .delete("/:groupId/settlements/:settlementId", async ({ params, member, set, memberToken }) => {
     if (!member) {
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
     }
-    await deleteSettlement(params.settlementId, params.groupId, member.id, userId!)
+    await deleteSettlement(params.settlementId, params.groupId, member.id, memberToken!)
     set.status = 204
   }, { requireAuth: true })
 

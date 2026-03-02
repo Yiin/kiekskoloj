@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test"
 import { Elysia } from "elysia"
 import { setupTestDb } from "../../test-utils"
-import { authRoutes } from "../auth"
 import { groupRoutes } from "../groups"
 import { expenseRoutes } from "../expenses"
 import { uploadRoutes } from "."
@@ -13,17 +12,16 @@ let cleanup: () => void
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
-    .use(authRoutes)
     .use(groupRoutes)
     .use(expenseRoutes)
     .use(uploadRoutes)
 }
 
-function getAuthCookie(res: Response): string | null {
+function getSessionCookie(res: Response): string | null {
   const setCookie = res.headers.getSetCookie?.()
   if (!setCookie) return null
   for (const c of setCookie) {
-    if (c.startsWith("auth=")) return c
+    if (c.startsWith("session=")) return c
   }
   return null
 }
@@ -32,25 +30,18 @@ function cookieValue(setCookie: string): string {
   return setCookie.split(";")[0]
 }
 
-async function registerAndSetup(app: ReturnType<typeof buildApp>) {
-  const regRes = await app.handle(new Request("http://localhost/api/auth/register", {
+async function createGroupAndSetup(app: ReturnType<typeof buildApp>) {
+  // Create group (this also creates the first member and sets session cookie)
+  const groupRes = await app.handle(new Request("http://localhost/api/groups", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      email: "upload-user@test.com",
-      name: "Upload User",
-      password: "testpassword123",
+      name: "Upload Test Group",
+      memberName: "Upload User",
+      currency: "EUR",
     }),
   }))
-  const cookie = cookieValue(getAuthCookie(regRes)!)
-  const regBody = (await regRes.json()) as any
-
-  // Create group
-  const groupRes = await app.handle(new Request("http://localhost/api/groups", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Cookie: cookie },
-    body: JSON.stringify({ name: "Upload Test Group", currency: "EUR" }),
-  }))
+  const cookie = cookieValue(getSessionCookie(groupRes)!)
   const groupBody = (await groupRes.json()) as any
   const groupId = groupBody.group.id
   const memberId = groupBody.group.members[0].id
@@ -93,7 +84,7 @@ describe("Uploads / Receipts", () => {
       await mkdir(uploadDir, { recursive: true })
     }
 
-    const setup = await registerAndSetup(app)
+    const setup = await createGroupAndSetup(app)
     userCookie = setup.cookie
     groupId = setup.groupId
     expenseId = setup.expenseId

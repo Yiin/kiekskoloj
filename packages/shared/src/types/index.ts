@@ -1,5 +1,4 @@
-export type { User, UserProfile } from './user'
-export type { Group, GroupMember, MemberRole } from './group'
+export type { Group, GroupMember } from './group'
 export type {
   SplitMethod,
   Expense,

@@ -90,10 +90,10 @@
                 <span class="truncate text-foreground">{{ member.name }}</span>
               </div>
               <span
-                v-if="member.role === 'admin'"
+                v-if="!member.active"
                 class="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0"
               >
-                admin
+                inactive
               </span>
             </li>
           </ul>

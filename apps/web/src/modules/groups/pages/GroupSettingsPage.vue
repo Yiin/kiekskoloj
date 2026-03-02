@@ -107,20 +107,11 @@
               <div class="min-w-0">
                 <div class="text-sm font-medium text-foreground truncate">{{ member.name }}</div>
                 <div class="text-xs text-muted-foreground">
-                  {{ member.role }} &middot; weight {{ member.weight }}
+                  weight {{ member.weight }}
                 </div>
               </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-              <select
-                :value="member.role"
-                class="text-xs rounded border border-input bg-background px-2 py-1 text-foreground"
-                @change="handleUpdateMemberRole(member.id, ($event.target as HTMLSelectElement).value as 'admin' | 'member' | 'readonly')"
-              >
-                <option value="admin">admin</option>
-                <option value="member">member</option>
-                <option value="readonly">readonly</option>
-              </select>
               <button
                 class="text-xs text-destructive hover:underline"
                 @click="handleRemoveMember(member.id, member.name)"
@@ -336,14 +327,6 @@ async function handleAddMember() {
     error.value = e.message || "Failed to add member"
   } finally {
     addingMember.value = false
-  }
-}
-
-async function handleUpdateMemberRole(memberId: string, role: "admin" | "member" | "readonly") {
-  try {
-    await store.updateMember(groupId.value, memberId, { role } as any)
-  } catch (e: any) {
-    error.value = e.message || "Failed to update member"
   }
 }
 

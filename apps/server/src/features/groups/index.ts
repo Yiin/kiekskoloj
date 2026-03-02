@@ -3,7 +3,7 @@ import { authGuard } from "../../middleware/auth-guard"
 import { groupAccess } from "../../middleware/group-access"
 import {
   createGroup,
-  getUserGroups,
+  getGroupsByToken,
   getGroupById,
   updateGroup,
   deleteGroup,
@@ -12,51 +12,72 @@ import {
   removeMember,
   regenerateInviteCode,
   joinGroup,
+  generateSessionToken,
 } from "./service"
+
+function setSessionCookie(cookie: any, token: string) {
+  cookie.session.set({
+    value: token,
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 365 * 86400,
+  })
+}
 
 export const groupRoutes = new Elysia({ prefix: "/groups" })
   .use(authGuard)
-  .get("/", async ({ userId, set }) => {
-    if (!userId) {
-      set.status = 401
-      return { error: "UNAUTHORIZED", message: "Authentication required" }
+  .get("/", async ({ memberToken, set }) => {
+    if (!memberToken) {
+      return { groups: [] }
     }
-    const groups = await getUserGroups(userId)
+    const groups = await getGroupsByToken(memberToken)
     return { groups }
-  }, { requireAuth: true })
+  })
 
-  .post("/", async ({ userId, body, set }) => {
-    if (!userId) {
-      set.status = 401
-      return { error: "UNAUTHORIZED", message: "Authentication required" }
+  .post("/", async ({ memberToken, body, cookie }) => {
+    const sessionToken = memberToken || generateSessionToken()
+    const group = await createGroup(body, body.memberName, sessionToken)
+    if (!memberToken) {
+      setSessionCookie(cookie, sessionToken)
     }
-    const group = await createGroup(userId, body)
     return { group }
   }, {
-    requireAuth: true,
     body: t.Object({
       name: t.String({ minLength: 1 }),
+      memberName: t.String({ minLength: 1 }),
       currency: t.Optional(t.String()),
       color: t.Optional(t.String()),
     }),
   })
 
-  .post("/join/:inviteCode", async ({ userId, params, body, set }) => {
-    if (!userId) {
-      set.status = 401
-      return { error: "UNAUTHORIZED", message: "Authentication required" }
+  .post("/join/:inviteCode", async ({ memberToken, params, body, cookie, set }) => {
+    const sessionToken = memberToken || generateSessionToken()
+    try {
+      const result = await joinGroup(params.inviteCode, body.name, sessionToken)
+      if (!result) {
+        set.status = 404
+        return { error: "NOT_FOUND", message: "Invalid invite code" }
+      }
+      if (!memberToken) {
+        setSessionCookie(cookie, sessionToken)
+      }
+      return { group: result.group, member: result.member }
+    } catch (e: any) {
+      if (e.message?.startsWith("CONFLICT:")) {
+        set.status = 409
+        return { error: "CONFLICT", message: e.message.slice(9) }
+      }
+      throw e
     }
-    const result = await joinGroup(params.inviteCode, userId, body.name)
-    if (!result) {
-      set.status = 404
-      return { error: "NOT_FOUND", message: "Invalid invite code" }
-    }
-    return result
   }, {
-    requireAuth: true,
     body: t.Object({
       name: t.String({ minLength: 1 }),
     }),
+  })
+
+  .get("/session", ({ memberToken }) => {
+    return { hasSession: !!memberToken }
   })
 
   .use(groupAccess)
@@ -79,10 +100,6 @@ export const groupRoutes = new Elysia({ prefix: "/groups" })
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
     }
-    if (member.role !== "admin") {
-      set.status = 403
-      return { error: "FORBIDDEN", message: "Admin access required" }
-    }
     const group = await updateGroup(params.groupId, body)
     return { group }
   }, {
@@ -100,10 +117,6 @@ export const groupRoutes = new Elysia({ prefix: "/groups" })
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
     }
-    if (member.role !== "admin") {
-      set.status = 403
-      return { error: "FORBIDDEN", message: "Admin access required" }
-    }
     await deleteGroup(params.groupId)
     set.status = 204
   }, { requireAuth: true })
@@ -113,18 +126,12 @@ export const groupRoutes = new Elysia({ prefix: "/groups" })
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
     }
-    if (member.role !== "admin") {
-      set.status = 403
-      return { error: "FORBIDDEN", message: "Admin access required" }
-    }
     const newMember = await addMember(params.groupId, body)
     return { member: newMember }
   }, {
     requireAuth: true,
     body: t.Object({
       name: t.String({ minLength: 1 }),
-      userId: t.Optional(t.String()),
-      role: t.Optional(t.String()),
       weight: t.Optional(t.Number()),
     }),
   })
@@ -134,10 +141,6 @@ export const groupRoutes = new Elysia({ prefix: "/groups" })
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
     }
-    if (member.role !== "admin") {
-      set.status = 403
-      return { error: "FORBIDDEN", message: "Admin access required" }
-    }
     const updated = await updateMember(params.memberId, body)
     return { member: updated }
   }, {
@@ -145,7 +148,6 @@ export const groupRoutes = new Elysia({ prefix: "/groups" })
     body: t.Object({
       name: t.Optional(t.String({ minLength: 1 })),
       weight: t.Optional(t.Number()),
-      role: t.Optional(t.String()),
       active: t.Optional(t.Boolean()),
     }),
   })
@@ -155,10 +157,6 @@ export const groupRoutes = new Elysia({ prefix: "/groups" })
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
     }
-    if (member.role !== "admin") {
-      set.status = 403
-      return { error: "FORBIDDEN", message: "Admin access required" }
-    }
     await removeMember(params.memberId)
     set.status = 204
   }, { requireAuth: true })
@@ -167,10 +165,6 @@ export const groupRoutes = new Elysia({ prefix: "/groups" })
     if (!member) {
       set.status = 403
       return { error: "FORBIDDEN", message: "Not a member of this group" }
-    }
-    if (member.role !== "admin") {
-      set.status = 403
-      return { error: "FORBIDDEN", message: "Admin access required" }
     }
     const result = await regenerateInviteCode(params.groupId)
     return result

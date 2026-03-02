@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test"
 import { Elysia } from "elysia"
 import { setupTestDb } from "../../test-utils"
-import { authRoutes } from "../auth"
 import { groupRoutes } from "../groups"
 import { expenseRoutes } from "../expenses"
 import { settlementRoutes } from "../settlements"
@@ -12,7 +11,6 @@ let cleanup: () => void
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
-    .use(authRoutes)
     .use(groupRoutes)
     .use(expenseRoutes)
     .use(settlementRoutes)
@@ -38,32 +36,17 @@ async function req(
   return app.handle(new Request(`http://localhost${path}`, init))
 }
 
-function getAuthCookie(res: Response): string | null {
+function getSessionCookie(res: Response): string | null {
   const setCookie = res.headers.getSetCookie?.()
   if (!setCookie) return null
   for (const c of setCookie) {
-    if (c.startsWith("auth=")) return c
+    if (c.startsWith("session=")) return c
   }
   return null
 }
 
 function cookieValue(setCookie: string): string {
   return setCookie.split(";")[0]
-}
-
-async function registerUser(
-  app: ReturnType<typeof buildApp>,
-  email: string,
-  name: string,
-) {
-  const res = await req(app, "POST", "/api/auth/register", {
-    email,
-    name,
-    password: "testpassword123",
-  })
-  const cookie = getAuthCookie(res)
-  const body = (await res.json()) as any
-  return { cookie: cookieValue(cookie!), user: body.user }
 }
 
 describe("Stats & Export", () => {
@@ -80,15 +63,14 @@ describe("Stats & Export", () => {
     cleanup = ctx.cleanup
     app = buildApp()
 
-    // Register user
-    const user = await registerUser(app, "stats-user@test.com", "Stats User")
-    userCookie = user.cookie
-
-    // Create group
+    // Create group (this also creates the first member and sets session cookie)
     const groupRes = await req(app, "POST", "/api/groups", {
       name: "Stats Test Group",
+      memberName: "Stats User",
       currency: "EUR",
-    }, { Cookie: userCookie })
+    })
+    const sessionCookie = getSessionCookie(groupRes)
+    userCookie = cookieValue(sessionCookie!)
     const groupBody = (await groupRes.json()) as any
     groupId = groupBody.group.id
     memberId = groupBody.group.members[0].id

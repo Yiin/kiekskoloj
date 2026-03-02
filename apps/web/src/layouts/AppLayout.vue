@@ -6,7 +6,7 @@
       </div>
       <nav class="space-y-1">
         <RouterLink
-          to="/"
+          to="/groups"
           class="flex items-center gap-2 px-3 py-2 rounded-md text-sm hover:bg-accent"
           :class="route.name === 'groups' ? 'bg-accent text-accent-foreground' : 'text-foreground'"
         >
@@ -37,15 +37,6 @@
           </RouterLink>
         </nav>
       </div>
-
-      <div class="mt-auto pt-4 border-t border-border">
-        <div class="flex items-center justify-between px-3 py-2">
-          <span class="text-sm text-muted-foreground">{{ auth.user?.name }}</span>
-          <button @click="handleLogout" class="text-sm text-muted-foreground hover:text-foreground">
-            Logout
-          </button>
-        </div>
-      </div>
     </aside>
     <main class="flex-1 p-4 md:p-8">
       <slot />
@@ -55,16 +46,13 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue"
-import { useRoute, useRouter } from "vue-router"
-import { useAuthStore } from "@/stores/auth"
+import { useRoute } from "vue-router"
 import { useGroupsStore } from "@/stores/groups"
 import { useUiStore } from "@/stores/ui"
 
-const auth = useAuthStore()
 const groupsStore = useGroupsStore()
 const ui = useUiStore()
 const route = useRoute()
-const router = useRouter()
 
 function isCurrentGroup(id: string) {
   const paramId = route.params.id as string | undefined
@@ -72,7 +60,7 @@ function isCurrentGroup(id: string) {
 }
 
 onMounted(async () => {
-  if (auth.isAuthenticated && groupsStore.groups.length === 0) {
+  if (groupsStore.groups.length === 0) {
     try {
       await groupsStore.fetchGroups()
     } catch {
@@ -80,9 +68,4 @@ onMounted(async () => {
     }
   }
 })
-
-async function handleLogout() {
-  await auth.logout()
-  router.push("/login")
-}
 </script>

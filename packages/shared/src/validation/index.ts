@@ -1,10 +1,4 @@
 export {
-  loginSchema,
-  registerSchema,
-  type LoginInput,
-  type RegisterInput,
-} from './auth'
-export {
   createGroupSchema,
   updateGroupSchema,
   type CreateGroupInput,

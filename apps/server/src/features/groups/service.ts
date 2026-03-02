@@ -1,5 +1,5 @@
 import { db } from "../../lib/db"
-import { groups, groupMembers, users } from "../../db/schema"
+import { groups, groupMembers } from "../../db/schema"
 import { eq, and } from "drizzle-orm"
 import { nanoid } from "nanoid"
 
@@ -7,9 +7,14 @@ function generateInviteCode() {
   return nanoid(10)
 }
 
+export function generateSessionToken() {
+  return nanoid(21)
+}
+
 export async function createGroup(
-  userId: string,
-  data: { name: string; currency?: string; color?: string }
+  data: { name: string; currency?: string; color?: string },
+  memberName: string,
+  sessionToken: string,
 ) {
   const groupId = nanoid()
   const now = Date.now()
@@ -21,35 +26,27 @@ export async function createGroup(
     currency: data.currency || "EUR",
     color: data.color || null,
     inviteCode,
-    createdBy: userId,
     createdAt: now,
     updatedAt: now,
   })
-
-  // Look up creator's name from users table
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-  })
-  const creatorName = user?.name || "Unknown"
 
   const memberId = nanoid()
   await db.insert(groupMembers).values({
     id: memberId,
     groupId,
-    userId,
-    name: creatorName,
-    role: "admin",
+    name: memberName,
+    token: sessionToken,
     joinedAt: now,
   })
 
   return getGroupById(groupId)
 }
 
-export async function getUserGroups(userId: string) {
+export async function getGroupsByToken(token: string) {
   const members = await db
     .select({ groupId: groupMembers.groupId })
     .from(groupMembers)
-    .where(eq(groupMembers.userId, userId))
+    .where(eq(groupMembers.token, token))
 
   if (members.length === 0) return []
 
@@ -66,7 +63,14 @@ export async function getGroupById(groupId: string) {
   if (!group) return null
 
   const members = await db
-    .select()
+    .select({
+      id: groupMembers.id,
+      groupId: groupMembers.groupId,
+      name: groupMembers.name,
+      weight: groupMembers.weight,
+      active: groupMembers.active,
+      joinedAt: groupMembers.joinedAt,
+    })
     .from(groupMembers)
     .where(eq(groupMembers.groupId, groupId))
 
@@ -91,7 +95,7 @@ export async function deleteGroup(groupId: string) {
 
 export async function addMember(
   groupId: string,
-  data: { name: string; userId?: string; role?: string; weight?: number }
+  data: { name: string; weight?: number }
 ) {
   const memberId = nanoid()
   const now = Date.now()
@@ -99,9 +103,7 @@ export async function addMember(
   await db.insert(groupMembers).values({
     id: memberId,
     groupId,
-    userId: data.userId || null,
     name: data.name,
-    role: (data.role as "admin" | "member" | "readonly") || "member",
     weight: data.weight ?? 1.0,
     joinedAt: now,
   })
@@ -113,12 +115,11 @@ export async function addMember(
 
 export async function updateMember(
   memberId: string,
-  data: { name?: string; weight?: number; role?: string; active?: boolean }
+  data: { name?: string; weight?: number; active?: boolean }
 ) {
   const updateData: Record<string, any> = {}
   if (data.name !== undefined) updateData.name = data.name
   if (data.weight !== undefined) updateData.weight = data.weight
-  if (data.role !== undefined) updateData.role = data.role
   if (data.active !== undefined) updateData.active = data.active
 
   await db.update(groupMembers).set(updateData).where(eq(groupMembers.id, memberId))
@@ -142,20 +143,31 @@ export async function regenerateInviteCode(groupId: string) {
   return { inviteCode: newCode }
 }
 
-export async function joinGroup(inviteCode: string, userId: string, userName: string) {
+export async function joinGroup(inviteCode: string, memberName: string, sessionToken: string) {
   const group = await db.query.groups.findFirst({
     where: eq(groups.inviteCode, inviteCode),
   })
   if (!group) return null
 
-  // Check if user is already a member
-  const existing = await db.query.groupMembers.findFirst({
+  // Check if this session already has a member in this group
+  const existingByToken = await db.query.groupMembers.findFirst({
     where: and(
       eq(groupMembers.groupId, group.id),
-      eq(groupMembers.userId, userId)
+      eq(groupMembers.token, sessionToken)
     ),
   })
-  if (existing) return { group, member: existing, alreadyMember: true }
+  if (existingByToken) return { group, member: existingByToken, alreadyMember: true }
+
+  // Check if name is already taken in this group
+  const existingByName = await db.query.groupMembers.findFirst({
+    where: and(
+      eq(groupMembers.groupId, group.id),
+      eq(groupMembers.name, memberName)
+    ),
+  })
+  if (existingByName) {
+    throw new Error("CONFLICT:Name already taken in this group")
+  }
 
   const memberId = nanoid()
   const now = Date.now()
@@ -163,9 +175,8 @@ export async function joinGroup(inviteCode: string, userId: string, userName: st
   await db.insert(groupMembers).values({
     id: memberId,
     groupId: group.id,
-    userId,
-    name: userName,
-    role: "member",
+    name: memberName,
+    token: sessionToken,
     joinedAt: now,
   })
 

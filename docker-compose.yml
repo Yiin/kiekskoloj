@@ -13,7 +13,6 @@ services:
       dockerfile: docker/server.Dockerfile
     restart: unless-stopped
     environment:
-      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production}
       - DATABASE_PATH=/data/kiekskoloj.db
       - UPLOAD_PATH=/data/uploads
       - PORT=3006

@@ -107,7 +107,7 @@ export async function createExpense(
   groupId: string,
   memberId: string,
   data: CreateExpenseData,
-  userId?: string,
+  senderToken?: string,
 ) {
   const expenseId = nanoid()
   const now = Date.now()
@@ -200,7 +200,7 @@ export async function createExpense(
 
   // Broadcast and log activity (fire-and-forget)
   if (expense) {
-    wsManager.broadcast(groupId, { type: "expense:created", groupId, expense }, userId)
+    wsManager.broadcast(groupId, { type: "expense:created", groupId, expense }, senderToken)
     logActivity(groupId, memberId, "expense_created", "expense", expenseId, { title: data.title, amount: data.amount }).catch(() => {})
   }
 
@@ -316,7 +316,7 @@ export async function updateExpense(
   data: CreateExpenseData,
   groupId?: string,
   memberId?: string,
-  userId?: string,
+  senderToken?: string,
 ) {
   const now = Date.now()
   const computedSplits = calculateSplits(data.amount, data.splitMethod, data.splits)
@@ -398,7 +398,7 @@ export async function updateExpense(
 
   // Broadcast and log activity (fire-and-forget)
   if (expense && groupId && memberId) {
-    wsManager.broadcast(groupId, { type: "expense:updated", groupId, expense }, userId)
+    wsManager.broadcast(groupId, { type: "expense:updated", groupId, expense }, senderToken)
     logActivity(groupId, memberId, "expense_updated", "expense", expenseId, { title: data.title, amount: data.amount }).catch(() => {})
   }
 
@@ -409,13 +409,13 @@ export async function deleteExpense(
   expenseId: string,
   groupId?: string,
   memberId?: string,
-  userId?: string,
+  senderToken?: string,
 ) {
   await db.delete(expenses).where(eq(expenses.id, expenseId))
 
   // Broadcast and log activity (fire-and-forget)
   if (groupId && memberId) {
-    wsManager.broadcast(groupId, { type: "expense:deleted", groupId, expenseId }, userId)
+    wsManager.broadcast(groupId, { type: "expense:deleted", groupId, expenseId }, senderToken)
     logActivity(groupId, memberId, "expense_deleted", "expense", expenseId).catch(() => {})
   }
 }

@@ -6,14 +6,14 @@ import { authGuard } from "./auth-guard"
 
 export const groupAccess = new Elysia({ name: "group-access" })
   .use(authGuard)
-  .derive({ as: "scoped" }, async ({ userId, params }) => {
+  .derive({ as: "scoped" }, async ({ memberToken, params }) => {
     const groupId = (params as any)?.groupId
-    if (!groupId || !userId) return { member: null as any }
+    if (!groupId || !memberToken) return { member: null as any }
 
     const member = await db.query.groupMembers.findFirst({
       where: and(
         eq(groupMembers.groupId, groupId),
-        eq(groupMembers.userId, userId)
+        eq(groupMembers.token, memberToken)
       ),
     })
 
