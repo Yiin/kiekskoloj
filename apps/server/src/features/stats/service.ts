@@ -69,7 +69,7 @@ export async function getGroupStats(
     .from(expenses)
     .leftJoin(categories, eq(expenses.categoryId, categories.id))
     .where(where)
-    .groupBy(expenses.categoryId)
+    .groupBy(expenses.categoryId, categories.name)
 
   const byCategory: CategoryStat[] = categoryRows.map((r) => ({
     categoryId: r.categoryId,
@@ -117,17 +117,17 @@ export async function getGroupStats(
       owed: Math.round((owedMap.get(m.id) ?? 0) * 100) / 100,
     }))
 
-  // Monthly aggregation: group by year-month derived from date timestamp
-  // SQLite strftime works on seconds, but our dates are milliseconds
+  // Monthly aggregation: group by year-month derived from date timestamp (ms)
+  const monthExpr = sql`to_char(to_timestamp(${expenses.date}::double precision / 1000), 'YYYY-MM')`
   const monthlyRows = await db
     .select({
-      month: sql<string>`strftime('%Y-%m', ${expenses.date} / 1000, 'unixepoch')`.as("month"),
+      month: sql<string>`${monthExpr}`.as("month"),
       total: sql<number>`sum(${expenses.amount})`.as("total"),
     })
     .from(expenses)
     .where(where)
-    .groupBy(sql`strftime('%Y-%m', ${expenses.date} / 1000, 'unixepoch')`)
-    .orderBy(sql`strftime('%Y-%m', ${expenses.date} / 1000, 'unixepoch')`)
+    .groupBy(monthExpr)
+    .orderBy(monthExpr)
 
   const byMonth: MonthlyStat[] = monthlyRows.map((r) => ({
     month: r.month,

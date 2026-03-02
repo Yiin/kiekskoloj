@@ -10,7 +10,7 @@ import { exchangeRates, expenses, expensePayers, expenseSplits } from "../../db/
 import { nanoid } from "nanoid"
 import { eq, and } from "drizzle-orm"
 
-let cleanup: () => void
+let cleanup: () => Promise<void>
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
@@ -54,14 +54,14 @@ function cookieValue(setCookie: string): string {
 describe("Currencies", () => {
   let app: ReturnType<typeof buildApp>
 
-  beforeAll(() => {
-    const ctx = setupTestDb()
+  beforeAll(async () => {
+    const ctx = await setupTestDb()
     cleanup = ctx.cleanup
     app = buildApp()
   })
 
-  afterAll(() => {
-    cleanup()
+  afterAll(async () => {
+    await cleanup()
   })
 
   test("GET /currencies returns list of currencies", async () => {
@@ -113,7 +113,7 @@ describe("Multi-currency expenses", () => {
   let member2Id: string
 
   beforeAll(async () => {
-    const ctx = setupTestDb()
+    const ctx = await setupTestDb()
     cleanup = ctx.cleanup
     app = buildApp()
 
@@ -144,8 +144,8 @@ describe("Multi-currency expenses", () => {
     member2Id = m2Body.member.id
   })
 
-  afterAll(() => {
-    cleanup()
+  afterAll(async () => {
+    await cleanup()
   })
 
   test("Creating expense in group currency stores null exchangeRate", async () => {
@@ -184,7 +184,7 @@ describe("Multi-currency expenses", () => {
 
   test("Balance computation converts multi-currency expenses to group currency", async () => {
     // Start fresh: create new group + members + expenses
-    const ctx2 = setupTestDb()
+    const ctx2 = await setupTestDb()
     const app2 = buildApp()
 
     // Seed exchange rates
@@ -248,6 +248,6 @@ describe("Multi-currency expenses", () => {
     expect(m1Bal.balance).toBe(73)
     expect(m2Bal.balance).toBe(-73)
 
-    ctx2.cleanup()
+    await ctx2.cleanup()
   })
 })

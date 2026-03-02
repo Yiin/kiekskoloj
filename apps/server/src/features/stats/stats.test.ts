@@ -7,7 +7,7 @@ import { settlementRoutes } from "../settlements"
 import { statsRoutes } from "."
 import { exportRoutes } from "../exports"
 
-let cleanup: () => void
+let cleanup: () => Promise<void>
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
@@ -59,7 +59,7 @@ describe("Stats & Export", () => {
   let categoryId: string
 
   beforeAll(async () => {
-    const ctx = setupTestDb()
+    const ctx = await setupTestDb()
     cleanup = ctx.cleanup
     app = buildApp()
 
@@ -157,8 +157,8 @@ describe("Stats & Export", () => {
     }, { Cookie: userCookie })
   })
 
-  afterAll(() => {
-    cleanup()
+  afterAll(async () => {
+    await cleanup()
   })
 
   test("Get stats for group — correct totals", async () => {

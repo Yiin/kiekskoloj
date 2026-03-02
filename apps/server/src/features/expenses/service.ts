@@ -126,12 +126,8 @@ export async function createExpense(
     exchangeRate = await getRate(data.currency, group.currency)
   }
 
-  const sqlite = (db as any).session?.client
-  if (sqlite && typeof sqlite.run === "function") {
-    sqlite.run("BEGIN")
-  }
-  try {
-    await db.insert(expenses).values({
+  await db.transaction(async (tx) => {
+    await tx.insert(expenses).values({
       id: expenseId,
       groupId,
       title: data.title,
@@ -148,7 +144,7 @@ export async function createExpense(
     })
 
     for (const payer of data.payers) {
-      await db.insert(expensePayers).values({
+      await tx.insert(expensePayers).values({
         id: nanoid(),
         expenseId,
         memberId: payer.memberId,
@@ -157,7 +153,7 @@ export async function createExpense(
     }
 
     for (const split of computedSplits) {
-      await db.insert(expenseSplits).values({
+      await tx.insert(expenseSplits).values({
         id: nanoid(),
         expenseId,
         memberId: split.memberId,
@@ -169,14 +165,14 @@ export async function createExpense(
     if (data.items && data.items.length > 0) {
       for (const item of data.items) {
         const itemId = nanoid()
-        await db.insert(expenseItems).values({
+        await tx.insert(expenseItems).values({
           id: itemId,
           expenseId,
           name: item.name,
           amount: item.amount,
         })
         for (const itemSplit of item.splits) {
-          await db.insert(expenseItemSplits).values({
+          await tx.insert(expenseItemSplits).values({
             id: nanoid(),
             itemId,
             memberId: itemSplit.memberId,
@@ -185,16 +181,7 @@ export async function createExpense(
         }
       }
     }
-
-    if (sqlite && typeof sqlite.run === "function") {
-      sqlite.run("COMMIT")
-    }
-  } catch (e) {
-    if (sqlite && typeof sqlite.run === "function") {
-      sqlite.run("ROLLBACK")
-    }
-    throw e
-  }
+  })
 
   const expense = await getExpenseById(expenseId)
 
@@ -341,12 +328,8 @@ export async function updateExpense(
     }
   }
 
-  const sqlite = (db as any).session?.client
-  if (sqlite && typeof sqlite.run === "function") {
-    sqlite.run("BEGIN")
-  }
-  try {
-    await db
+  await db.transaction(async (tx) => {
+    await tx
       .update(expenses)
       .set({
         title: data.title,
@@ -362,11 +345,11 @@ export async function updateExpense(
       .where(eq(expenses.id, expenseId))
 
     // Delete old payers and splits, then recreate
-    await db.delete(expensePayers).where(eq(expensePayers.expenseId, expenseId))
-    await db.delete(expenseSplits).where(eq(expenseSplits.expenseId, expenseId))
+    await tx.delete(expensePayers).where(eq(expensePayers.expenseId, expenseId))
+    await tx.delete(expenseSplits).where(eq(expenseSplits.expenseId, expenseId))
 
     for (const payer of data.payers) {
-      await db.insert(expensePayers).values({
+      await tx.insert(expensePayers).values({
         id: nanoid(),
         expenseId,
         memberId: payer.memberId,
@@ -375,7 +358,7 @@ export async function updateExpense(
     }
 
     for (const split of computedSplits) {
-      await db.insert(expenseSplits).values({
+      await tx.insert(expenseSplits).values({
         id: nanoid(),
         expenseId,
         memberId: split.memberId,
@@ -383,16 +366,7 @@ export async function updateExpense(
         shares: split.shares ?? null,
       })
     }
-
-    if (sqlite && typeof sqlite.run === "function") {
-      sqlite.run("COMMIT")
-    }
-  } catch (e) {
-    if (sqlite && typeof sqlite.run === "function") {
-      sqlite.run("ROLLBACK")
-    }
-    throw e
-  }
+  })
 
   const expense = await getExpenseById(expenseId)
 

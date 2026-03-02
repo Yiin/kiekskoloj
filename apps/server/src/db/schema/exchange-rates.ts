@@ -1,10 +1,10 @@
-import { sqliteTable, text, real, integer, primaryKey } from "drizzle-orm/sqlite-core"
+import { pgTable, text, doublePrecision, bigint, primaryKey } from "drizzle-orm/pg-core"
 
-export const exchangeRates = sqliteTable("exchange_rates", {
+export const exchangeRates = pgTable("exchange_rates", {
   base: text("base").notNull(),
   target: text("target").notNull(),
-  rate: real("rate").notNull(),
-  fetchedAt: integer("fetched_at").notNull(),
+  rate: doublePrecision("rate").notNull(),
+  fetchedAt: bigint("fetched_at", { mode: "number" }).notNull(),
 }, (table) => [
   primaryKey({ columns: [table.base, table.target] }),
 ])

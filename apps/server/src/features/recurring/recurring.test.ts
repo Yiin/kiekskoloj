@@ -9,7 +9,7 @@ import { db } from "../../lib/db"
 import { expenses } from "../../db/schema"
 import { eq } from "drizzle-orm"
 
-let cleanup: () => void
+let cleanup: () => Promise<void>
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
@@ -58,7 +58,7 @@ describe("Recurring Expenses", () => {
   let recurringId: string
 
   beforeAll(async () => {
-    const ctx = setupTestDb()
+    const ctx = await setupTestDb()
     cleanup = ctx.cleanup
     app = buildApp()
 
@@ -82,8 +82,8 @@ describe("Recurring Expenses", () => {
     member2Id = m2Body.member.id
   })
 
-  afterAll(() => {
-    cleanup()
+  afterAll(async () => {
+    await cleanup()
   })
 
   test("Create a recurring expense", async () => {

@@ -14,13 +14,13 @@ import { recurringRoutes } from "./features/recurring"
 import { wsRoutes } from "./features/ws"
 import { seedDefaultCategories } from "./features/categories/service"
 import { processDueRecurring } from "./features/recurring/service"
+import { runMigrations } from "./lib/db"
 
 const port = parseInt(Bun.env.PORT || "3006")
 
-// Seed global preset categories on startup
-seedDefaultCategories().catch((err) => {
-  console.error("Failed to seed default categories:", err)
-})
+// Run migrations, then seed categories
+await runMigrations()
+await seedDefaultCategories()
 
 // Process due recurring expenses every hour
 setInterval(() => processDueRecurring().catch(console.error), 60 * 60 * 1000)

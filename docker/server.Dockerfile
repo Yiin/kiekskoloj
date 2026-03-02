@@ -11,6 +11,7 @@ RUN cd apps/server && bun build src/index.ts --outdir dist --target bun
 FROM oven/bun:1-slim
 WORKDIR /app
 COPY --from=builder /app/apps/server/dist .
+COPY --from=builder /app/apps/server/src/db/migrations ./migrations
 COPY --from=builder /app/node_modules ./node_modules
 RUN mkdir -p /data/uploads
 EXPOSE 3006

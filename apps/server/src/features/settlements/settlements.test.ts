@@ -7,7 +7,7 @@ import { db } from "../../lib/db"
 import { expenses, expensePayers, expenseSplits } from "../../db/schema"
 import { nanoid } from "nanoid"
 
-let cleanup: () => void
+let cleanup: () => Promise<void>
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
@@ -100,7 +100,7 @@ describe("Settlements & Balances", () => {
   let settlementId: string
 
   beforeAll(async () => {
-    const ctx = setupTestDb()
+    const ctx = await setupTestDb()
     cleanup = ctx.cleanup
     app = buildApp()
 
@@ -142,8 +142,8 @@ describe("Settlements & Balances", () => {
     ])
   })
 
-  afterAll(() => {
-    cleanup()
+  afterAll(async () => {
+    await cleanup()
   })
 
   test("Get balances for a group with expenses - correct net balances", async () => {

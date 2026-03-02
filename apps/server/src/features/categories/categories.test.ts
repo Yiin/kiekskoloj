@@ -6,7 +6,7 @@ import { expenseRoutes } from "../expenses"
 import { categoryRoutes } from "."
 import { seedDefaultCategories } from "./service"
 
-let cleanup: () => void
+let cleanup: () => Promise<void>
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
@@ -54,7 +54,7 @@ describe("Categories", () => {
   let customCategoryId: string
 
   beforeAll(async () => {
-    const ctx = setupTestDb()
+    const ctx = await setupTestDb()
     cleanup = ctx.cleanup
     app = buildApp()
 
@@ -74,8 +74,8 @@ describe("Categories", () => {
     memberId = groupBody.group.members[0].id
   })
 
-  afterAll(() => {
-    cleanup()
+  afterAll(async () => {
+    await cleanup()
   })
 
   test("List categories returns global presets", async () => {

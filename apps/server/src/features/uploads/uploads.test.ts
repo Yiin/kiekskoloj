@@ -8,7 +8,7 @@ import { getUploadDir } from "./service"
 import { mkdir, rm } from "fs/promises"
 import { existsSync } from "fs"
 
-let cleanup: () => void
+let cleanup: () => Promise<void>
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
@@ -75,7 +75,7 @@ describe("Uploads / Receipts", () => {
   let uploadDir: string
 
   beforeAll(async () => {
-    const ctx = setupTestDb()
+    const ctx = await setupTestDb()
     cleanup = ctx.cleanup
     app = buildApp()
 
@@ -99,7 +99,7 @@ describe("Uploads / Receipts", () => {
     } catch {
       // Ignore
     }
-    cleanup()
+    await cleanup()
   })
 
   test("Upload a receipt", async () => {

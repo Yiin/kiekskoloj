@@ -13,14 +13,36 @@ services:
       dockerfile: docker/server.Dockerfile
     restart: unless-stopped
     environment:
-      - DATABASE_PATH=/data/kiekskoloj.db
+      - DATABASE_URL=postgres://kiekskoloj:kiekskoloj@db:5432/kiekskoloj
+      - MIGRATIONS_PATH=./migrations
       - UPLOAD_PATH=/data/uploads
       - PORT=3006
       - NODE_ENV=production
     volumes:
-      - server_data:/data
+      - upload_data:/data/uploads
     expose:
       - "3006"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=kiekskoloj
+      - POSTGRES_PASSWORD=kiekskoloj
+      - POSTGRES_DB=kiekskoloj
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kiekskoloj"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  server_data:
+  pgdata:
+  upload_data:

@@ -4,7 +4,7 @@ import { setupTestDb } from "../../test-utils"
 import { groupRoutes } from "../groups"
 import { expenseRoutes } from "."
 
-let cleanup: () => void
+let cleanup: () => Promise<void>
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
@@ -53,7 +53,7 @@ describe("Expenses & Splits", () => {
   let outsiderCookie: string
 
   beforeAll(async () => {
-    const ctx = setupTestDb()
+    const ctx = await setupTestDb()
     cleanup = ctx.cleanup
     app = buildApp()
 
@@ -91,8 +91,8 @@ describe("Expenses & Splits", () => {
     outsiderCookie = cookieValue(outsiderSessionCookie!)
   })
 
-  afterAll(() => {
-    cleanup()
+  afterAll(async () => {
+    await cleanup()
   })
 
   test("Create expense with equal split", async () => {

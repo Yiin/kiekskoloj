@@ -3,7 +3,7 @@ import { Elysia } from "elysia"
 import { setupTestDb } from "../../test-utils"
 import { groupRoutes } from "."
 
-let cleanup: () => void
+let cleanup: () => Promise<void>
 
 function buildApp() {
   return new Elysia({ prefix: "/api" })
@@ -64,7 +64,7 @@ describe("Groups & Members", () => {
   let offlineMemberId: string
 
   beforeAll(async () => {
-    const ctx = setupTestDb()
+    const ctx = await setupTestDb()
     cleanup = ctx.cleanup
     app = buildApp()
 
@@ -74,8 +74,8 @@ describe("Groups & Members", () => {
     inviteCode = result.group.inviteCode
   })
 
-  afterAll(() => {
-    cleanup()
+  afterAll(async () => {
+    await cleanup()
   })
 
   test("Create a group - returns group with creator as member", async () => {
