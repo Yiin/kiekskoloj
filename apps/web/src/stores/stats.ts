@@ -2,13 +2,6 @@ import { defineStore } from "pinia"
 import { ref } from "vue"
 import { useApi } from "@/composables/useApi"
 
-interface CategoryStat {
-  categoryId: string | null
-  categoryName: string
-  total: number
-  count: number
-}
-
 interface MemberStat {
   memberId: string
   memberName: string
@@ -24,7 +17,6 @@ interface MonthlyStat {
 export interface GroupStats {
   totalSpending: number
   expenseCount: number
-  byCategory: CategoryStat[]
   byMember: MemberStat[]
   byMonth: MonthlyStat[]
 }

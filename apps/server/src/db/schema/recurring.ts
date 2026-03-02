@@ -1,14 +1,12 @@
 import { pgTable, text, bigint, doublePrecision, boolean, index } from "drizzle-orm/pg-core"
 import { groups, groupMembers } from "./groups"
-import { categories } from "./expenses"
 
 export const recurringExpenses = pgTable("recurring_expenses", {
   id: text("id").primaryKey(),
   groupId: text("group_id").notNull().references(() => groups.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
+  comment: text("comment"),
   amount: doublePrecision("amount").notNull(),
   currency: text("currency").notNull(),
-  categoryId: text("category_id").references(() => categories.id),
   splitMethod: text("split_method", { enum: ["equal", "percentage", "amount", "weight", "shares"] }).notNull(),
   frequency: text("frequency", { enum: ["daily", "weekly", "monthly", "yearly"] }).notNull(),
   nextDate: bigint("next_date", { mode: "number" }).notNull(),

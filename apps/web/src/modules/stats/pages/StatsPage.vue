@@ -79,29 +79,6 @@
         </div>
       </div>
 
-      <!-- Spending by category -->
-      <section class="mb-8" v-if="statsStore.stats && statsStore.stats.byCategory.length > 0">
-        <h2 class="text-lg font-semibold text-foreground mb-3">By Category</h2>
-        <div class="space-y-2">
-          <div
-            v-for="cat in statsStore.stats.byCategory"
-            :key="cat.categoryId ?? 'uncategorized'"
-            class="flex items-center gap-2"
-          >
-            <span class="w-28 text-sm truncate text-foreground">{{ cat.categoryName }}</span>
-            <div class="flex-1 bg-muted rounded-full h-3 overflow-hidden">
-              <div
-                class="h-full bg-primary rounded-full transition-all"
-                :style="{ width: `${categoryPercentage(cat.total)}%` }"
-              />
-            </div>
-            <span class="text-sm w-20 text-right text-muted-foreground">
-              {{ formatCurrency(cat.total, currency) }}
-            </span>
-          </div>
-        </div>
-      </section>
-
       <!-- Spending by member -->
       <section class="mb-8" v-if="statsStore.stats && statsStore.stats.byMember.length > 0">
         <h2 class="text-lg font-semibold text-foreground mb-3">By Member</h2>
@@ -208,19 +185,10 @@ const toDate = ref("")
 
 const currency = computed(() => groupsStore.currentGroup?.currency ?? "EUR")
 
-const maxCategoryTotal = computed(() => {
-  if (!statsStore.stats) return 0
-  return Math.max(...statsStore.stats.byCategory.map((c) => c.total), 1)
-})
-
 const maxMonthTotal = computed(() => {
   if (!statsStore.stats) return 0
   return Math.max(...statsStore.stats.byMonth.map((m) => m.total), 1)
 })
-
-function categoryPercentage(total: number): number {
-  return (total / maxCategoryTotal.value) * 100
-}
 
 function monthPercentage(total: number): number {
   return (total / maxMonthTotal.value) * 100

@@ -14,12 +14,10 @@ const splitSchema = z.object({
 
 export const createExpenseSchema = z.object({
   groupId: z.string().min(1),
-  title: z.string().min(1, 'Title is required').max(200, 'Title is too long'),
+  comment: z.string().max(200).optional(),
   amount: z.number().positive('Amount must be greater than 0'),
   currency: z.string().length(3, 'Currency must be a 3-letter ISO code'),
   exchangeRate: z.number().positive().nullable().optional(),
-  categoryId: z.string().nullable().optional(),
-  note: z.string().max(1000).nullable().optional(),
   date: z.number().int().positive('Date is required'),
   splitMethod: z.enum(SPLIT_METHODS),
   payers: z.array(payerSchema).min(1, 'At least one payer is required'),
@@ -27,12 +25,10 @@ export const createExpenseSchema = z.object({
 })
 
 export const updateExpenseSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200, 'Title is too long').optional(),
+  comment: z.string().max(200).optional(),
   amount: z.number().positive('Amount must be greater than 0').optional(),
   currency: z.string().length(3, 'Currency must be a 3-letter ISO code').optional(),
   exchangeRate: z.number().positive().nullable().optional(),
-  categoryId: z.string().nullable().optional(),
-  note: z.string().max(1000).nullable().optional(),
   date: z.number().int().positive('Date is required').optional(),
   splitMethod: z.enum(SPLIT_METHODS).optional(),
   payers: z.array(payerSchema).min(1, 'At least one payer is required').optional(),

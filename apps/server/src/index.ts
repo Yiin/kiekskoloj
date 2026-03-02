@@ -5,22 +5,19 @@ import { groupRoutes } from "./features/groups"
 import { expenseRoutes } from "./features/expenses"
 import { settlementRoutes } from "./features/settlements"
 import { currencyRoutes } from "./features/currencies"
-import { categoryRoutes } from "./features/categories"
 import { uploadRoutes } from "./features/uploads"
 import { activityRoutes } from "./features/activity"
 import { statsRoutes } from "./features/stats"
 import { exportRoutes } from "./features/exports"
 import { recurringRoutes } from "./features/recurring"
 import { wsRoutes } from "./features/ws"
-import { seedDefaultCategories } from "./features/categories/service"
 import { processDueRecurring } from "./features/recurring/service"
 import { runMigrations } from "./lib/db"
 
 const port = parseInt(Bun.env.PORT || "3006")
 
-// Run migrations, then seed categories
+// Run migrations
 await runMigrations()
-await seedDefaultCategories()
 
 // Process due recurring expenses every hour
 setInterval(() => processDueRecurring().catch(console.error), 60 * 60 * 1000)
@@ -35,7 +32,6 @@ const app = new Elysia({ prefix: "/api" })
   .use(expenseRoutes)
   .use(settlementRoutes)
   .use(currencyRoutes)
-  .use(categoryRoutes)
   .use(uploadRoutes)
   .use(activityRoutes)
   .use(statsRoutes)

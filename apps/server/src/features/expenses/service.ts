@@ -31,13 +31,11 @@ interface ItemInput {
 }
 
 interface CreateExpenseData {
-  title: string
+  comment?: string
   amount: number
   currency: string
   date: number
   splitMethod: SplitMethod
-  categoryId?: string
-  note?: string
   payers: PayerInput[]
   splits: SplitInput[]
   items?: ItemInput[]
@@ -48,7 +46,6 @@ interface GetExpensesOptions {
   limit?: number
   from?: number
   to?: number
-  categoryId?: string
   memberId?: string
 }
 
@@ -130,14 +127,12 @@ export async function createExpense(
     await tx.insert(expenses).values({
       id: expenseId,
       groupId,
-      title: data.title,
+      comment: data.comment || null,
       amount: data.amount,
       currency: data.currency,
       exchangeRate,
       date: data.date,
       splitMethod: data.splitMethod,
-      categoryId: data.categoryId || null,
-      note: data.note || null,
       createdBy: memberId,
       createdAt: now,
       updatedAt: now,
@@ -188,19 +183,18 @@ export async function createExpense(
   // Broadcast and log activity (fire-and-forget)
   if (expense) {
     wsManager.broadcast(groupId, { type: "expense:created", groupId, expense }, senderToken)
-    logActivity(groupId, memberId, "expense_created", "expense", expenseId, { title: data.title, amount: data.amount }).catch(() => {})
+    logActivity(groupId, memberId, "expense_created", "expense", expenseId, { comment: data.comment, amount: data.amount }).catch(() => {})
   }
 
   return expense
 }
 
 export async function getExpenses(groupId: string, options: GetExpensesOptions = {}) {
-  const { page = 1, limit = 20, from, to, categoryId, memberId } = options
+  const { page = 1, limit = 20, from, to, memberId } = options
 
   const conditions = [eq(expenses.groupId, groupId)]
   if (from) conditions.push(gte(expenses.date, from))
   if (to) conditions.push(lte(expenses.date, to))
-  if (categoryId) conditions.push(eq(expenses.categoryId, categoryId))
 
   const where = conditions.length === 1 ? conditions[0] : and(...conditions)
 
@@ -332,14 +326,12 @@ export async function updateExpense(
     await tx
       .update(expenses)
       .set({
-        title: data.title,
+        comment: data.comment || null,
         amount: data.amount,
         currency: data.currency,
         exchangeRate,
         date: data.date,
         splitMethod: data.splitMethod,
-        categoryId: data.categoryId || null,
-        note: data.note || null,
         updatedAt: now,
       })
       .where(eq(expenses.id, expenseId))
@@ -373,7 +365,7 @@ export async function updateExpense(
   // Broadcast and log activity (fire-and-forget)
   if (expense && groupId && memberId) {
     wsManager.broadcast(groupId, { type: "expense:updated", groupId, expense }, senderToken)
-    logActivity(groupId, memberId, "expense_updated", "expense", expenseId, { title: data.title, amount: data.amount }).catch(() => {})
+    logActivity(groupId, memberId, "expense_updated", "expense", expenseId, { comment: data.comment, amount: data.amount }).catch(() => {})
   }
 
   return expense

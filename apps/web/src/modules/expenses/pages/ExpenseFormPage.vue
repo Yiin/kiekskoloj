@@ -38,24 +38,6 @@
       <form @submit.prevent="handleSubmit" class="space-y-6 max-w-lg">
         <!-- Section 1: Basic Info -->
         <section class="space-y-4">
-          <div>
-            <label
-              for="expense-title"
-              class="block text-sm font-medium text-foreground mb-1"
-            >
-              Title
-            </label>
-            <input
-              id="expense-title"
-              v-model="form.title"
-              type="text"
-              required
-              maxlength="200"
-              placeholder="Dinner, taxi, groceries..."
-              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-
           <div class="flex gap-4">
             <div class="flex-1">
               <label
@@ -102,41 +84,18 @@
 
           <div>
             <label
-              for="expense-category"
+              for="expense-comment"
               class="block text-sm font-medium text-foreground mb-1"
             >
-              Category
+              Comment
             </label>
-            <select
-              id="expense-category"
-              v-model="form.categoryId"
-              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              <option value="">No category</option>
-              <option
-                v-for="cat in DEFAULT_CATEGORIES"
-                :key="cat.name"
-                :value="cat.name"
-              >
-                {{ cat.name }}
-              </option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              for="expense-note"
-              class="block text-sm font-medium text-foreground mb-1"
-            >
-              Note
-            </label>
-            <textarea
-              id="expense-note"
-              v-model="form.note"
-              rows="2"
-              maxlength="500"
-              placeholder="Optional note..."
-              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+            <input
+              id="expense-comment"
+              v-model="form.comment"
+              type="text"
+              maxlength="200"
+              placeholder="mcd, taxi, beer..."
+              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </section>
@@ -203,7 +162,6 @@
 import { ref, reactive, computed, onMounted, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import type { SplitMethod } from "@kiekskoloj/shared"
-import { DEFAULT_CATEGORIES } from "@kiekskoloj/shared"
 import { useExpensesStore } from "@/stores/expenses"
 import { useGroupsStore } from "@/stores/groups"
 import PayerSelector from "../components/PayerSelector.vue"
@@ -242,10 +200,8 @@ interface SplitEntry {
 }
 
 const form = reactive({
-  title: "",
+  comment: "",
   date: new Date().toISOString().slice(0, 10),
-  categoryId: "",
-  note: "",
   splitMethod: "equal" as SplitMethod,
   payers: [] as { memberId: string; amount: number }[],
   splits: [] as SplitEntry[],
@@ -295,10 +251,8 @@ onMounted(async () => {
 
     if (isEditing.value && expenseId) {
       const expense = await expensesStore.fetchExpense(groupId, expenseId)
-      form.title = expense.title
+      form.comment = expense.comment || ""
       form.date = new Date(expense.date).toISOString().slice(0, 10)
-      form.categoryId = expense.categoryId || ""
-      form.note = expense.note || ""
       form.splitMethod = expense.splitMethod
       amountInput.value = (expense.amount / 100).toFixed(2)
       form.payers = expense.payers.map((p) => ({
@@ -359,18 +313,16 @@ watch(
 )
 
 async function handleSubmit() {
-  if (!form.title.trim() || amountCents.value <= 0) return
+  if (amountCents.value <= 0) return
 
   submitting.value = true
   submitError.value = ""
 
   const payload = {
-    title: form.title.trim(),
+    comment: form.comment.trim() || null,
     amount: amountCents.value,
     currency: groupCurrency.value,
     date: new Date(form.date).getTime(),
-    categoryId: form.categoryId || null,
-    note: form.note.trim() || null,
     splitMethod: form.splitMethod,
     payers: form.payers.map((p) => ({
       memberId: p.memberId,

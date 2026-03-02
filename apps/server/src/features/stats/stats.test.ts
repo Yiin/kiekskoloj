@@ -56,7 +56,6 @@ describe("Stats & Export", () => {
   let memberId: string
   let member2Id: string
   let member3Id: string
-  let categoryId: string
 
   beforeAll(async () => {
     const ctx = await setupTestDb()
@@ -86,28 +85,14 @@ describe("Stats & Export", () => {
     }, { Cookie: userCookie })
     member3Id = ((await m3Res.json()) as any).member.id
 
-    // Create a category directly in the DB for testing
-    const { db } = await import("../../lib/db")
-    const { categories } = await import("../../db/schema")
-    const { nanoid } = await import("nanoid")
-    categoryId = nanoid()
-    await db.insert(categories).values({
-      id: categoryId,
-      groupId,
-      name: "Food",
-      icon: null,
-      color: "#ef4444",
-    })
-
     // Create expenses at known dates
-    // January 2024 expense: Food, 90 EUR, paid by member, split 3 ways
+    // January 2024 expense: 90 EUR, paid by member, split 3 ways
     await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Dinner",
+      comment: "Dinner",
       amount: 90,
       currency: "EUR",
       date: new Date("2024-01-15").getTime(),
       splitMethod: "equal",
-      categoryId,
       payers: [{ memberId, amount: 90 }],
       splits: [
         { memberId },
@@ -116,14 +101,13 @@ describe("Stats & Export", () => {
       ],
     }, { Cookie: userCookie })
 
-    // January 2024 expense: Food, 60 EUR, paid by Alice, split 3 ways
+    // January 2024 expense: 60 EUR, paid by Alice, split 3 ways
     await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Lunch",
+      comment: "Lunch",
       amount: 60,
       currency: "EUR",
       date: new Date("2024-01-20").getTime(),
       splitMethod: "equal",
-      categoryId,
       payers: [{ memberId: member2Id, amount: 60 }],
       splits: [
         { memberId },
@@ -132,9 +116,9 @@ describe("Stats & Export", () => {
       ],
     }, { Cookie: userCookie })
 
-    // February 2024 expense: no category, 120 EUR, paid by Bob, split equal
+    // February 2024 expense: 120 EUR, paid by Bob, split equal
     await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Hotel",
+      comment: "Hotel",
       amount: 120,
       currency: "EUR",
       date: new Date("2024-02-10").getTime(),
@@ -174,30 +158,6 @@ describe("Stats & Export", () => {
     const body = (await res.json()) as any
     expect(body.totalSpending).toBe(270) // 90 + 60 + 120
     expect(body.expenseCount).toBe(3)
-  })
-
-  test("Stats by category are correct", async () => {
-    const res = await req(
-      app,
-      "GET",
-      `/api/groups/${groupId}/stats`,
-      undefined,
-      { Cookie: userCookie },
-    )
-
-    expect(res.status).toBe(200)
-    const body = (await res.json()) as any
-    expect(body.byCategory).toHaveLength(2) // "Food" and "Uncategorized"
-
-    const food = body.byCategory.find((c: any) => c.categoryName === "Food")
-    expect(food).toBeDefined()
-    expect(food.total).toBe(150) // 90 + 60
-    expect(food.count).toBe(2)
-
-    const uncategorized = body.byCategory.find((c: any) => c.categoryName === "Uncategorized")
-    expect(uncategorized).toBeDefined()
-    expect(uncategorized.total).toBe(120)
-    expect(uncategorized.count).toBe(1)
   })
 
   test("Stats by member show correct paid/owed", async () => {
@@ -284,14 +244,14 @@ describe("Stats & Export", () => {
 
     const csv = await res.text()
     const lines = csv.split("\n")
-    expect(lines[0]).toBe("Date,Title,Amount,Currency,Category,Paid By,Note")
+    expect(lines[0]).toBe("Date,Comment,Amount,Currency,Paid By")
     expect(lines.length).toBe(4) // header + 3 expenses
 
     // Check a line contains expected data
     const hasHotel = lines.some((l) => l.includes("Hotel") && l.includes("120"))
     expect(hasHotel).toBe(true)
 
-    const hasDinner = lines.some((l) => l.includes("Dinner") && l.includes("Food"))
+    const hasDinner = lines.some((l) => l.includes("Dinner") && l.includes("90"))
     expect(hasDinner).toBe(true)
   })
 

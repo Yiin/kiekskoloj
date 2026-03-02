@@ -24,14 +24,12 @@ const templateSchema = t.Object({
     }),
     { minItems: 1 },
   ),
-  note: t.Optional(t.String()),
 })
 
 const createBody = t.Object({
-  title: t.String({ minLength: 1 }),
+  comment: t.Optional(t.String()),
   amount: t.Number({ minimum: 0, exclusiveMinimum: 0 }),
   currency: t.String({ minLength: 1 }),
-  categoryId: t.Optional(t.String()),
   splitMethod: t.Union([
     t.Literal("equal"),
     t.Literal("percentage"),
@@ -50,10 +48,9 @@ const createBody = t.Object({
 })
 
 const updateBody = t.Object({
-  title: t.Optional(t.String({ minLength: 1 })),
+  comment: t.Optional(t.Union([t.String(), t.Null()])),
   amount: t.Optional(t.Number({ minimum: 0, exclusiveMinimum: 0 })),
   currency: t.Optional(t.String({ minLength: 1 })),
-  categoryId: t.Optional(t.Union([t.String(), t.Null()])),
   splitMethod: t.Optional(t.Union([
     t.Literal("equal"),
     t.Literal("percentage"),

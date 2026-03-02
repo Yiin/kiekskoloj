@@ -10,7 +10,7 @@ import {
 } from "./service"
 
 const expenseBody = t.Object({
-  title: t.String({ minLength: 1 }),
+  comment: t.Optional(t.String()),
   amount: t.Number({ minimum: 0, exclusiveMinimum: 0 }),
   currency: t.String({ minLength: 1 }),
   date: t.Number(),
@@ -21,8 +21,6 @@ const expenseBody = t.Object({
     t.Literal("weight"),
     t.Literal("shares"),
   ]),
-  categoryId: t.Optional(t.String()),
-  note: t.Optional(t.String()),
   payers: t.Array(
     t.Object({
       memberId: t.String(),
@@ -67,7 +65,6 @@ export const expenseRoutes = new Elysia({ prefix: "/groups" })
       limit: query.limit ? parseInt(query.limit) : undefined,
       from: query.from ? parseInt(query.from) : undefined,
       to: query.to ? parseInt(query.to) : undefined,
-      categoryId: query.categoryId || undefined,
       memberId: query.memberId || undefined,
     }
     const result = await getExpenses(params.groupId, options)
@@ -79,7 +76,6 @@ export const expenseRoutes = new Elysia({ prefix: "/groups" })
       limit: t.Optional(t.String()),
       from: t.Optional(t.String()),
       to: t.Optional(t.String()),
-      categoryId: t.Optional(t.String()),
       memberId: t.Optional(t.String()),
     }),
   })

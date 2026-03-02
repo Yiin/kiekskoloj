@@ -1,23 +1,13 @@
 import { pgTable, text, bigint, doublePrecision, index } from "drizzle-orm/pg-core"
 import { groups, groupMembers } from "./groups"
 
-export const categories = pgTable("categories", {
-  id: text("id").primaryKey(),
-  groupId: text("group_id").references(() => groups.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  icon: text("icon"),
-  color: text("color"),
-})
-
 export const expenses = pgTable("expenses", {
   id: text("id").primaryKey(),
   groupId: text("group_id").notNull().references(() => groups.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
+  comment: text("comment"),
   amount: doublePrecision("amount").notNull(),
   currency: text("currency").notNull(),
   exchangeRate: doublePrecision("exchange_rate"),
-  categoryId: text("category_id").references(() => categories.id),
-  note: text("note"),
   date: bigint("date", { mode: "number" }).notNull(),
   splitMethod: text("split_method", { enum: ["equal", "percentage", "amount", "weight", "shares"] }).notNull(),
   recurringId: text("recurring_id"),

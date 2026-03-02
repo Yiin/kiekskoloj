@@ -3,17 +3,9 @@ import {
   expenses,
   expensePayers,
   expenseSplits,
-  categories,
   groupMembers,
 } from "../../db/schema"
 import { eq, and, gte, lte, sql } from "drizzle-orm"
-
-interface CategoryStat {
-  categoryId: string | null
-  categoryName: string
-  total: number
-  count: number
-}
 
 interface MemberStat {
   memberId: string
@@ -30,7 +22,6 @@ interface MonthlyStat {
 export interface GroupStats {
   totalSpending: number
   expenseCount: number
-  byCategory: CategoryStat[]
   byMember: MemberStat[]
   byMonth: MonthlyStat[]
 }
@@ -58,28 +49,7 @@ export async function getGroupStats(
   const totalSpending = totalsRow.total
   const expenseCount = totalsRow.count
 
-  // Spending by category
-  const categoryRows = await db
-    .select({
-      categoryId: expenses.categoryId,
-      categoryName: sql<string>`coalesce(${categories.name}, 'Uncategorized')`.as("category_name"),
-      total: sql<number>`sum(${expenses.amount})`.as("total"),
-      count: sql<number>`count(*)`.as("count"),
-    })
-    .from(expenses)
-    .leftJoin(categories, eq(expenses.categoryId, categories.id))
-    .where(where)
-    .groupBy(expenses.categoryId, categories.name)
-
-  const byCategory: CategoryStat[] = categoryRows.map((r) => ({
-    categoryId: r.categoryId,
-    categoryName: r.categoryName,
-    total: r.total,
-    count: r.count,
-  }))
-
   // Spending by member (paid via expense_payers, owed via expense_splits)
-  // Build conditions for joined queries (need to filter expenses by groupId + date range)
   const paidRows = await db
     .select({
       memberId: expensePayers.memberId,
@@ -134,5 +104,5 @@ export async function getGroupStats(
     total: r.total,
   }))
 
-  return { totalSpending, expenseCount, byCategory, byMember, byMonth }
+  return { totalSpending, expenseCount, byMember, byMonth }
 }

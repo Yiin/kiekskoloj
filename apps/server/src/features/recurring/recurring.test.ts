@@ -89,7 +89,7 @@ describe("Recurring Expenses", () => {
   test("Create a recurring expense", async () => {
     const nextDate = Date.now() + 7 * 24 * 60 * 60 * 1000 // 1 week from now
     const res = await req(app, "POST", `/api/groups/${groupId}/recurring`, {
-      title: "Monthly Rent",
+      comment: "Monthly Rent",
       amount: 1000,
       currency: "EUR",
       splitMethod: "equal",
@@ -98,14 +98,13 @@ describe("Recurring Expenses", () => {
       template: {
         payers: [{ memberId, amount: 1000 }],
         splits: [{ memberId }, { memberId: member2Id }],
-        note: "Rent payment",
       },
     }, { Cookie: userCookie })
 
     expect(res.status).toBe(200)
     const body = (await res.json()) as any
     expect(body.recurring).toBeDefined()
-    expect(body.recurring.title).toBe("Monthly Rent")
+    expect(body.recurring.comment).toBe("Monthly Rent")
     expect(body.recurring.amount).toBe(1000)
     expect(body.recurring.frequency).toBe("monthly")
     expect(body.recurring.active).toBe(true)
@@ -155,7 +154,7 @@ describe("Recurring Expenses", () => {
   test("Delete recurring expense", async () => {
     // Create a temporary one to delete
     const createRes = await req(app, "POST", `/api/groups/${groupId}/recurring`, {
-      title: "To Delete",
+      comment: "To Delete",
       amount: 50,
       currency: "EUR",
       splitMethod: "equal",
@@ -200,7 +199,7 @@ describe("Recurring Expenses", () => {
       .from(expenses)
       .where(eq(expenses.groupId, groupId))
 
-    const createdExpense = expenseList.find((e) => e.title === "Monthly Rent")
+    const createdExpense = expenseList.find((e) => e.comment === "Monthly Rent")
     expect(createdExpense).toBeDefined()
     expect(createdExpense!.amount).toBe(1000)
     expect(createdExpense!.currency).toBe("EUR")
@@ -248,7 +247,7 @@ describe("Recurring Expenses", () => {
     // Create a new recurring expense that's due but inactive
     const pastDate = Date.now() - 60000
     const createRes = await req(app, "POST", `/api/groups/${groupId}/recurring`, {
-      title: "Inactive Subscription",
+      comment: "Inactive Subscription",
       amount: 25,
       currency: "EUR",
       splitMethod: "equal",
@@ -284,7 +283,7 @@ describe("Recurring Expenses", () => {
       .where(eq(expenses.groupId, groupId))
 
     // No new "Inactive Subscription" expense should exist
-    const inactiveExpenses = afterExpenses.filter((e) => e.title === "Inactive Subscription")
+    const inactiveExpenses = afterExpenses.filter((e) => e.comment === "Inactive Subscription")
     expect(inactiveExpenses).toHaveLength(0)
   })
 })

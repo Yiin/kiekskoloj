@@ -3,7 +3,6 @@ import {
   expenses,
   expensePayers,
   expenseSplits,
-  categories,
   groupMembers,
   settlements,
   groups,
@@ -41,18 +40,15 @@ export async function exportCSV(
     .where(where)
     .orderBy(desc(expenses.date))
 
-  // Pre-fetch all members and categories for name lookups
+  // Pre-fetch all members for name lookups
   const members = await db
     .select()
     .from(groupMembers)
     .where(eq(groupMembers.groupId, groupId))
   const memberMap = new Map(members.map((m) => [m.id, m.name]))
 
-  const cats = await db.select().from(categories)
-  const catMap = new Map(cats.map((c) => [c.id, c.name]))
-
   const lines: string[] = []
-  lines.push("Date,Title,Amount,Currency,Category,Paid By,Note")
+  lines.push("Date,Comment,Amount,Currency,Paid By")
 
   for (const expense of rows) {
     const payers = await db
@@ -64,18 +60,12 @@ export async function exportCSV(
       .map((p) => memberMap.get(p.memberId) ?? p.memberId)
       .join("; ")
 
-    const categoryName = expense.categoryId
-      ? catMap.get(expense.categoryId) ?? ""
-      : ""
-
     const cols = [
       formatDateYMD(expense.date),
-      escapeCSV(expense.title),
+      escapeCSV(expense.comment ?? ""),
       String(expense.amount),
       expense.currency,
-      escapeCSV(categoryName),
       escapeCSV(payerNames),
-      escapeCSV(expense.note ?? ""),
     ]
     lines.push(cols.join(","))
   }

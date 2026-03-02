@@ -21,14 +21,12 @@ interface TemplateSplit {
 export interface RecurringTemplate {
   payers: TemplatePayer[]
   splits: TemplateSplit[]
-  note?: string
 }
 
 interface CreateRecurringData {
-  title: string
+  comment?: string
   amount: number
   currency: string
-  categoryId?: string
   splitMethod: SplitMethod
   frequency: Frequency
   nextDate: number
@@ -36,10 +34,9 @@ interface CreateRecurringData {
 }
 
 interface UpdateRecurringData {
-  title?: string
+  comment?: string | null
   amount?: number
   currency?: string
-  categoryId?: string | null
   splitMethod?: SplitMethod
   frequency?: Frequency
   nextDate?: number
@@ -77,10 +74,9 @@ export async function createRecurring(
   await db.insert(recurringExpenses).values({
     id,
     groupId,
-    title: data.title,
+    comment: data.comment || null,
     amount: data.amount,
     currency: data.currency,
-    categoryId: data.categoryId || null,
     splitMethod: data.splitMethod,
     frequency: data.frequency,
     nextDate: data.nextDate,
@@ -107,10 +103,9 @@ export async function getRecurring(groupId: string) {
 export async function updateRecurring(recurringId: string, data: UpdateRecurringData) {
   const setValues: Record<string, unknown> = {}
 
-  if (data.title !== undefined) setValues.title = data.title
+  if (data.comment !== undefined) setValues.comment = data.comment
   if (data.amount !== undefined) setValues.amount = data.amount
   if (data.currency !== undefined) setValues.currency = data.currency
-  if (data.categoryId !== undefined) setValues.categoryId = data.categoryId
   if (data.splitMethod !== undefined) setValues.splitMethod = data.splitMethod
   if (data.frequency !== undefined) setValues.frequency = data.frequency
   if (data.nextDate !== undefined) setValues.nextDate = data.nextDate
@@ -147,13 +142,11 @@ export async function processDueRecurring() {
     const template: RecurringTemplate = JSON.parse(item.template)
 
     await createExpense(item.groupId, item.createdBy, {
-      title: item.title,
+      comment: item.comment || undefined,
       amount: item.amount,
       currency: item.currency,
       date: item.nextDate,
       splitMethod: item.splitMethod as SplitMethod,
-      categoryId: item.categoryId || undefined,
-      note: template.note,
       payers: template.payers,
       splits: template.splits,
     })

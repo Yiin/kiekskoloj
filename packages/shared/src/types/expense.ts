@@ -3,12 +3,10 @@ export type SplitMethod = 'equal' | 'percentage' | 'amount' | 'weight' | 'shares
 export interface Expense {
   id: string
   groupId: string
-  title: string
+  comment: string
   amount: number
   currency: string
   exchangeRate: number | null
-  categoryId: string | null
-  note: string | null
   date: number
   splitMethod: SplitMethod
   recurringId: string | null

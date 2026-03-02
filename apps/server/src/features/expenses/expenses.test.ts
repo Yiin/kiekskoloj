@@ -97,7 +97,7 @@ describe("Expenses & Splits", () => {
 
   test("Create expense with equal split", async () => {
     const res = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Dinner",
+      comment: "Dinner",
       amount: 90,
       currency: "EUR",
       date: Date.now(),
@@ -113,7 +113,7 @@ describe("Expenses & Splits", () => {
     expect(res.status).toBe(200)
     const body = (await res.json()) as any
     expect(body.expense).toBeDefined()
-    expect(body.expense.title).toBe("Dinner")
+    expect(body.expense.comment).toBe("Dinner")
     expect(body.expense.amount).toBe(90)
     expect(body.expense.payers).toHaveLength(1)
     expect(body.expense.payers[0].amount).toBe(90)
@@ -125,7 +125,7 @@ describe("Expenses & Splits", () => {
 
   test("Create expense with percentage split", async () => {
     const res = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Hotel",
+      comment: "Hotel",
       amount: 200,
       currency: "EUR",
       date: Date.now(),
@@ -150,7 +150,7 @@ describe("Expenses & Splits", () => {
 
   test("Create expense with exact amount split", async () => {
     const res = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Groceries",
+      comment: "Groceries",
       amount: 100,
       currency: "EUR",
       date: Date.now(),
@@ -175,7 +175,7 @@ describe("Expenses & Splits", () => {
 
   test("Create expense with weight/shares split", async () => {
     const res = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Taxi",
+      comment: "Taxi",
       amount: 60,
       currency: "EUR",
       date: Date.now(),
@@ -200,7 +200,7 @@ describe("Expenses & Splits", () => {
 
   test("Create expense with multi-payer", async () => {
     const res = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Concert tickets",
+      comment: "Concert tickets",
       amount: 150,
       currency: "EUR",
       date: Date.now(),
@@ -256,7 +256,7 @@ describe("Expenses & Splits", () => {
 
   test("Get expense by ID returns full details", async () => {
     const createRes = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Detail Test",
+      comment: "Detail Test",
       amount: 30,
       currency: "EUR",
       date: Date.now(),
@@ -283,15 +283,15 @@ describe("Expenses & Splits", () => {
     expect(res.status).toBe(200)
     const body = (await res.json()) as any
     expect(body.expense.id).toBe(expenseId)
-    expect(body.expense.title).toBe("Detail Test")
+    expect(body.expense.comment).toBe("Detail Test")
     expect(body.expense.payers).toHaveLength(1)
     expect(body.expense.splits).toHaveLength(3)
     expect(body.expense.items).toBeDefined()
   })
 
-  test("Update expense changes title and recalculates splits", async () => {
+  test("Update expense changes comment and recalculates splits", async () => {
     const createRes = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Original Title",
+      comment: "Original Comment",
       amount: 90,
       currency: "EUR",
       date: Date.now(),
@@ -307,7 +307,7 @@ describe("Expenses & Splits", () => {
     const expenseId = createBody.expense.id
 
     const res = await req(app, "PUT", `/api/groups/${groupId}/expenses/${expenseId}`, {
-      title: "Updated Title",
+      comment: "Updated Comment",
       amount: 200,
       currency: "EUR",
       date: Date.now(),
@@ -322,7 +322,7 @@ describe("Expenses & Splits", () => {
 
     expect(res.status).toBe(200)
     const body = (await res.json()) as any
-    expect(body.expense.title).toBe("Updated Title")
+    expect(body.expense.comment).toBe("Updated Comment")
     expect(body.expense.amount).toBe(200)
     expect(body.expense.splitMethod).toBe("percentage")
     expect(body.expense.splits).toHaveLength(3)
@@ -335,7 +335,7 @@ describe("Expenses & Splits", () => {
 
   test("Delete expense", async () => {
     const createRes = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "To Be Deleted",
+      comment: "To Be Deleted",
       amount: 10,
       currency: "EUR",
       date: Date.now(),
@@ -367,7 +367,7 @@ describe("Expenses & Splits", () => {
 
   test("Payer amounts must sum to expense amount (validation)", async () => {
     const res = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Bad Payers",
+      comment: "Bad Payers",
       amount: 100,
       currency: "EUR",
       date: Date.now(),
@@ -384,7 +384,7 @@ describe("Expenses & Splits", () => {
 
   test("Split shares must sum correctly for percentage split", async () => {
     const res = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Bad Percentage",
+      comment: "Bad Percentage",
       amount: 100,
       currency: "EUR",
       date: Date.now(),
@@ -404,7 +404,7 @@ describe("Expenses & Splits", () => {
 
   test("Non-member cannot create expense (403)", async () => {
     const res = await req(app, "POST", `/api/groups/${groupId}/expenses`, {
-      title: "Unauthorized Expense",
+      comment: "Unauthorized Expense",
       amount: 50,
       currency: "EUR",
       date: Date.now(),
