@@ -58,6 +58,12 @@
           <div v-else-if="activeTab === 'balances'">
             <div v-if="balancesLoading" class="h-32 rounded-xl bg-muted/70 animate-pulse" />
             <template v-else>
+              <DebtNetworkGraph
+                :balances="settlementsStore.balances"
+                :debts="settlementsStore.debts"
+                :currency="store.currentGroup?.currency ?? 'EUR'"
+                class="mb-6"
+              />
               <BalanceSummary
                 :balances="settlementsStore.balances"
                 :currency="store.currentGroup?.currency ?? 'EUR'"
@@ -131,6 +137,7 @@ import { useRoute } from "vue-router"
 import { useGroupsStore } from "@/stores/groups"
 import { useSettlementsStore } from "@/stores/settlements"
 import BalanceSummary from "../components/BalanceSummary.vue"
+import DebtNetworkGraph from "@/modules/settlements/components/DebtNetworkGraph.vue"
 import ExpenseListPage from "@/modules/expenses/pages/ExpenseListPage.vue"
 
 const route = useRoute()
