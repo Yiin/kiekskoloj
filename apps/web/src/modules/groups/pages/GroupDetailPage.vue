@@ -75,30 +75,50 @@
           </div>
         </div>
 
-        <aside class="w-56 shrink-0 hidden lg:block">
-          <h3 class="text-sm font-semibold text-foreground mb-3">
-            Members ({{ store.members.length }})
-          </h3>
-          <ul class="space-y-2">
-            <li
-              v-for="member in store.members"
-              :key="member.id"
-              class="flex items-center justify-between text-sm"
-            >
-              <div class="flex items-center gap-2 min-w-0">
-                <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary shrink-0">
-                  {{ member.name.charAt(0).toUpperCase() }}
-                </div>
-                <span class="truncate text-foreground">{{ member.name }}</span>
-              </div>
-              <span
-                v-if="!member.active"
-                class="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md shrink-0"
+        <aside class="w-56 shrink-0 hidden lg:block space-y-6">
+          <div>
+            <h3 class="text-sm font-semibold text-foreground mb-3">
+              Members ({{ store.members.length }})
+            </h3>
+            <ul class="space-y-2">
+              <li
+                v-for="member in store.members"
+                :key="member.id"
+                class="flex items-center justify-between text-sm"
               >
-                inactive
-              </span>
-            </li>
-          </ul>
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary shrink-0">
+                    {{ member.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <span class="truncate text-foreground">{{ member.name }}</span>
+                </div>
+                <span
+                  v-if="!member.active"
+                  class="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md shrink-0"
+                >
+                  inactive
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div v-if="store.currentGroup?.inviteCode">
+            <h3 class="text-sm font-semibold text-foreground mb-3">Invite Link</h3>
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                readonly
+                :value="inviteUrl"
+                class="flex-1 min-w-0 rounded-lg border border-input bg-muted px-2.5 py-1.5 text-xs text-muted-foreground truncate"
+              />
+              <button
+                class="shrink-0 px-2.5 py-1.5 text-xs rounded-lg border border-border text-foreground hover:bg-accent transition-colors"
+                @click="copyInviteUrl"
+              >
+                {{ copied ? 'Copied' : 'Copy' }}
+              </button>
+            </div>
+          </div>
         </aside>
       </div>
     </div>
@@ -106,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue"
+import { ref, computed, watch, onMounted } from "vue"
 import { useRoute } from "vue-router"
 import { useGroupsStore } from "@/stores/groups"
 import { useSettlementsStore } from "@/stores/settlements"
@@ -121,6 +141,19 @@ const loading = ref(true)
 const error = ref("")
 const balancesLoading = ref(false)
 const activeTab = ref<"expenses" | "balances">("expenses")
+
+const copied = ref(false)
+
+const inviteUrl = computed(() => {
+  if (!store.currentGroup?.inviteCode) return ""
+  return `${window.location.origin}/join/${store.currentGroup.inviteCode}`
+})
+
+function copyInviteUrl() {
+  navigator.clipboard.writeText(inviteUrl.value)
+  copied.value = true
+  setTimeout(() => { copied.value = false }, 2000)
+}
 
 const tabs = [
   { key: "expenses" as const, label: "Expenses" },
