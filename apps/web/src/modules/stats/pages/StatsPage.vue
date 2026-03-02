@@ -1,9 +1,9 @@
 <template>
   <div>
     <div v-if="loading" class="space-y-4">
-      <div class="h-8 w-48 rounded bg-muted animate-pulse" />
-      <div class="h-4 w-24 rounded bg-muted animate-pulse" />
-      <div class="h-64 rounded-lg bg-muted animate-pulse mt-6" />
+      <div class="h-8 w-48 rounded-lg bg-muted/70 animate-pulse" />
+      <div class="h-4 w-24 rounded-lg bg-muted/70 animate-pulse" />
+      <div class="h-64 rounded-xl bg-muted/70 animate-pulse mt-6" />
     </div>
 
     <div v-else-if="error" class="text-center py-16">
@@ -33,7 +33,7 @@
           <input
             type="date"
             v-model="fromDate"
-            class="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+            class="rounded-lg border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             @change="applyFilter"
           />
         </div>
@@ -42,7 +42,7 @@
           <input
             type="date"
             v-model="toDate"
-            class="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
+            class="rounded-lg border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             @change="applyFilter"
           />
         </div>
@@ -57,19 +57,19 @@
 
       <!-- Overview cards -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" v-if="statsStore.stats">
-        <div class="rounded-lg border border-border p-4">
+        <div class="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
           <div class="text-sm text-muted-foreground mb-1">Total Spending</div>
           <div class="text-2xl font-bold text-foreground">
             {{ formatCurrency(statsStore.stats.totalSpending, currency) }}
           </div>
         </div>
-        <div class="rounded-lg border border-border p-4">
+        <div class="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
           <div class="text-sm text-muted-foreground mb-1">Expenses</div>
           <div class="text-2xl font-bold text-foreground">
             {{ statsStore.stats.expenseCount }}
           </div>
         </div>
-        <div class="rounded-lg border border-border p-4">
+        <div class="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
           <div class="text-sm text-muted-foreground mb-1">Average per Expense</div>
           <div class="text-2xl font-bold text-foreground">
             {{ statsStore.stats.expenseCount > 0
@@ -85,7 +85,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-border text-muted-foreground">
+              <tr class="border-b border-border/60 text-muted-foreground">
                 <th class="text-left py-2 pr-4 font-medium">Member</th>
                 <th class="text-right py-2 px-4 font-medium">Paid</th>
                 <th class="text-right py-2 pl-4 font-medium">Owed</th>
@@ -95,7 +95,7 @@
               <tr
                 v-for="m in statsStore.stats.byMember"
                 :key="m.memberId"
-                class="border-b border-border last:border-0"
+                class="border-b border-border/60 last:border-0"
               >
                 <td class="py-2 pr-4 text-foreground">{{ m.memberName }}</td>
                 <td class="py-2 px-4 text-right text-foreground">
@@ -120,9 +120,9 @@
             class="flex items-center gap-2"
           >
             <span class="w-20 text-sm text-foreground">{{ m.month }}</span>
-            <div class="flex-1 bg-muted rounded-full h-3 overflow-hidden">
+            <div class="flex-1 bg-muted/60 rounded-full h-3 overflow-hidden">
               <div
-                class="h-full bg-primary rounded-full transition-all"
+                class="h-full bg-primary rounded-full transition-all duration-500"
                 :style="{ width: `${monthPercentage(m.total)}%` }"
               />
             </div>
@@ -136,7 +136,7 @@
       <!-- Export buttons -->
       <section class="flex gap-3">
         <button
-          class="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+          class="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground shadow-sm transition-colors"
           @click="downloadCSV"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,7 +145,7 @@
           Export CSV
         </button>
         <button
-          class="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+          class="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground shadow-sm transition-colors"
           @click="downloadJSON"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

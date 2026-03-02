@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Groups</h1>
       <button
-        class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 text-sm"
+        class="px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors text-sm font-medium"
         @click="showCreate = true"
       >
         New Group
@@ -11,7 +11,7 @@
     </div>
 
     <div v-if="loading" class="space-y-4">
-      <div v-for="i in 3" :key="i" class="h-24 rounded-lg bg-muted animate-pulse" />
+      <div v-for="i in 3" :key="i" class="h-24 rounded-xl bg-muted/70 animate-pulse" />
     </div>
 
     <div v-else-if="store.groups.length === 0" class="text-center py-16">
@@ -20,7 +20,7 @@
       </svg>
       <p class="text-muted-foreground mb-4">No groups yet. Create one to get started!</p>
       <button
-        class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 text-sm"
+        class="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors text-sm font-medium"
         @click="showCreate = true"
       >
         Create your first group

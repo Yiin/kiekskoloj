@@ -1,9 +1,9 @@
 <template>
   <div>
     <div v-if="loading" class="space-y-4">
-      <div class="h-8 w-48 rounded bg-muted animate-pulse" />
-      <div class="h-4 w-24 rounded bg-muted animate-pulse" />
-      <div class="h-64 rounded-lg bg-muted animate-pulse mt-6" />
+      <div class="h-8 w-48 rounded-lg bg-muted/70 animate-pulse" />
+      <div class="h-4 w-24 rounded-lg bg-muted/70 animate-pulse" />
+      <div class="h-64 rounded-xl bg-muted/70 animate-pulse mt-6" />
     </div>
 
     <div v-else-if="error" class="text-center py-16">
@@ -45,7 +45,7 @@
           <li
             v-for="s in settlementsStore.settlements"
             :key="s.id"
-            class="flex items-center justify-between rounded-md border border-border px-4 py-3"
+            class="flex items-center justify-between rounded-xl border border-border/60 bg-card px-4 py-3 shadow-sm"
           >
             <div class="min-w-0">
               <div class="flex items-center gap-2 text-sm">

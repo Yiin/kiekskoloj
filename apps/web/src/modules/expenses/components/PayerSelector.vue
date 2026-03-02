@@ -14,7 +14,7 @@
     <div v-if="!multiPayer">
       <select
         :value="singlePayerId"
-        class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
         @change="onSinglePayerChange"
       >
         <option value="" disabled>Select who paid</option>
@@ -36,7 +36,7 @@
           min="0"
           step="0.01"
           :value="getPayerAmount(m.id)"
-          class="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          class="flex-1 rounded-lg border border-input bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
           placeholder="0.00"
           @input="onPayerAmountChange(m.id, $event)"
         />

@@ -1,9 +1,9 @@
 <template>
   <div>
     <div v-if="loading" class="space-y-4">
-      <div class="h-8 w-48 rounded bg-muted animate-pulse" />
-      <div class="h-4 w-24 rounded bg-muted animate-pulse" />
-      <div class="h-64 rounded-lg bg-muted animate-pulse mt-6" />
+      <div class="h-8 w-48 rounded-lg bg-muted/70 animate-pulse" />
+      <div class="h-4 w-24 rounded-lg bg-muted/70 animate-pulse" />
+      <div class="h-64 rounded-xl bg-muted/70 animate-pulse mt-6" />
     </div>
 
     <div v-else-if="error" class="text-center py-16">
@@ -23,26 +23,28 @@
           :style="{ backgroundColor: store.currentGroup.color || '#9ca3af' }"
         />
         <h1 class="text-2xl font-bold">{{ store.currentGroup.name }}</h1>
-        <span class="text-sm text-muted-foreground bg-muted px-2 py-0.5 rounded">
+        <span class="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-lg font-medium">
           {{ store.currentGroup.currency }}
         </span>
       </div>
 
-      <nav class="flex gap-1 border-b border-border mt-6 mb-6">
-        <button
-          v-for="tab in tabs"
-          :key="tab.key"
-          class="px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px"
-          :class="activeTab === tab.key
-            ? 'border-primary text-primary'
-            : 'border-transparent text-muted-foreground hover:text-foreground'"
-          @click="activeTab = tab.key"
-        >
-          {{ tab.label }}
-        </button>
+      <nav class="flex gap-1 mt-6 mb-6">
+        <div class="flex gap-1 p-1 bg-muted/60 rounded-xl">
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            class="px-4 py-1.5 text-sm font-medium rounded-lg transition-all duration-200"
+            :class="activeTab === tab.key
+              ? 'bg-card text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'"
+            @click="activeTab = tab.key"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
         <RouterLink
           :to="`/groups/${store.currentGroup.id}/settings`"
-          class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-muted-foreground hover:text-foreground -mb-px ml-auto"
+          class="px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors ml-auto self-center"
         >
           Settings
         </RouterLink>
@@ -54,7 +56,7 @@
             <ExpenseListPage :group-id="store.currentGroup.id" />
           </div>
           <div v-else-if="activeTab === 'balances'">
-            <div v-if="balancesLoading" class="h-32 rounded-lg bg-muted animate-pulse" />
+            <div v-if="balancesLoading" class="h-32 rounded-xl bg-muted/70 animate-pulse" />
             <template v-else>
               <BalanceSummary
                 :balances="settlementsStore.balances"
@@ -84,14 +86,14 @@
               class="flex items-center justify-between text-sm"
             >
               <div class="flex items-center gap-2 min-w-0">
-                <div class="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0">
+                <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary shrink-0">
                   {{ member.name.charAt(0).toUpperCase() }}
                 </div>
                 <span class="truncate text-foreground">{{ member.name }}</span>
               </div>
               <span
                 v-if="!member.active"
-                class="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0"
+                class="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md shrink-0"
               >
                 inactive
               </span>

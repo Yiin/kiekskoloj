@@ -55,7 +55,7 @@
                   min="0.01"
                   step="0.01"
                   placeholder="0.00"
-                  class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring pr-14"
+                  class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors pr-14"
                 />
                 <span
                   class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground"
@@ -77,7 +77,7 @@
                 v-model="form.date"
                 type="date"
                 required
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
               />
             </div>
           </div>
@@ -95,14 +95,14 @@
               type="text"
               maxlength="200"
               placeholder="mcd, taxi, beer..."
-              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             />
           </div>
         </section>
 
         <!-- Section 2: Who Paid -->
         <section
-          class="border border-border rounded-lg p-4"
+          class="border border-border/60 rounded-xl p-4 bg-card shadow-sm"
         >
           <PayerSelector
             v-model="form.payers"
@@ -113,7 +113,7 @@
         </section>
 
         <!-- Section 3: Split Method -->
-        <section class="border border-border rounded-lg p-4">
+        <section class="border border-border/60 rounded-xl p-4 bg-card shadow-sm">
           <SplitMethodSelector
             v-model="form.splitMethod"
             :members="groupStore.members"
@@ -133,20 +133,20 @@
           <button
             type="submit"
             :disabled="submitting"
-            class="px-6 py-2 text-sm rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            class="px-6 py-2.5 text-sm rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors disabled:opacity-50 font-medium"
           >
             {{ submitting ? "Saving..." : isEditing ? "Update" : "Create" }}
           </button>
           <RouterLink
             :to="`/groups/${groupId}`"
-            class="px-4 py-2 text-sm rounded-md border border-border text-foreground hover:bg-accent"
+            class="px-4 py-2.5 text-sm rounded-xl border border-border text-foreground hover:bg-accent transition-colors"
           >
             Cancel
           </RouterLink>
           <button
             v-if="isEditing"
             type="button"
-            class="ml-auto px-4 py-2 text-sm rounded-md text-destructive border border-destructive hover:bg-destructive hover:text-destructive-foreground"
+            class="ml-auto px-4 py-2.5 text-sm rounded-xl text-destructive border border-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
             :disabled="deleting"
             @click="handleDelete"
           >

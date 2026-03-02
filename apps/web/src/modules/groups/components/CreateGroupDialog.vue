@@ -4,8 +4,8 @@
       v-if="open"
       class="fixed inset-0 z-50 flex items-center justify-center"
     >
-      <div class="fixed inset-0 bg-black/50" @click="close" />
-      <div class="relative z-10 w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
+      <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" @click="close" />
+      <div class="relative z-10 w-full max-w-md rounded-2xl border border-border/60 bg-card p-6 shadow-2xl">
         <h2 class="text-lg font-semibold text-card-foreground mb-4">Create Group</h2>
         <form @submit.prevent="handleSubmit">
           <div class="space-y-4">
@@ -20,7 +20,7 @@
                 required
                 maxlength="100"
                 placeholder="Trip to Japan"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
               />
             </div>
 
@@ -35,7 +35,7 @@
                 required
                 maxlength="50"
                 placeholder="Alice"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
               />
             </div>
 
@@ -46,7 +46,7 @@
               <select
                 id="group-currency"
                 v-model="form.currency"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
               >
                 <option v-for="c in CURRENCIES" :key="c.code" :value="c.code">
                   {{ c.symbol }} {{ c.code }} - {{ c.name }}
@@ -90,7 +90,7 @@
           <div class="mt-6 flex justify-end gap-3">
             <button
               type="button"
-              class="px-4 py-2 text-sm rounded-md border border-border text-foreground hover:bg-accent"
+              class="px-4 py-2 text-sm rounded-xl border border-border text-foreground hover:bg-accent transition-colors"
               @click="close"
             >
               Cancel
@@ -98,7 +98,7 @@
             <button
               type="submit"
               :disabled="submitting"
-              class="px-4 py-2 text-sm rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              class="px-4 py-2 text-sm rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors disabled:opacity-50 font-medium"
             >
               {{ submitting ? "Creating..." : "Create" }}
             </button>

@@ -1,9 +1,9 @@
 <template>
   <RouterLink
     :to="`/groups/${group.id}`"
-    class="block rounded-lg border border-border bg-card overflow-hidden transition-shadow hover:shadow-md"
+    class="block rounded-xl border border-border/60 bg-card overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
   >
-    <div class="h-1.5" :style="{ backgroundColor: group.color || '#e5e7eb' }" />
+    <div class="h-2" :style="{ backgroundColor: group.color || '#e5e7eb' }" />
     <div class="p-4">
       <h3 class="font-semibold text-card-foreground truncate">{{ group.name }}</h3>
       <div class="mt-2 flex items-center gap-3 text-sm text-muted-foreground">

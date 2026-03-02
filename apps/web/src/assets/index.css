@@ -1,51 +1,91 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(222.2 84% 4.9%);
+  --color-background: hsl(250 20% 98.5%);
+  --color-foreground: hsl(250 35% 10%);
   --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(222.2 84% 4.9%);
+  --color-card-foreground: hsl(250 35% 10%);
   --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(222.2 84% 4.9%);
-  --color-primary: hsl(16 88% 62%);
+  --color-popover-foreground: hsl(250 35% 10%);
+  --color-primary: hsl(249 76% 63%);
   --color-primary-foreground: hsl(0 0% 100%);
-  --color-secondary: hsl(210 40% 96.1%);
-  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --color-muted: hsl(210 40% 96.1%);
-  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
-  --color-accent: hsl(210 40% 96.1%);
-  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(214.3 31.8% 91.4%);
-  --color-input: hsl(214.3 31.8% 91.4%);
-  --color-ring: hsl(16 88% 62%);
-  --radius: 0.5rem;
+  --color-secondary: hsl(250 30% 95%);
+  --color-secondary-foreground: hsl(250 25% 22%);
+  --color-muted: hsl(250 18% 94%);
+  --color-muted-foreground: hsl(250 10% 46%);
+  --color-accent: hsl(250 28% 93%);
+  --color-accent-foreground: hsl(250 25% 22%);
+  --color-destructive: hsl(0 72% 51%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-border: hsl(250 18% 89%);
+  --color-input: hsl(250 18% 85%);
+  --color-ring: hsl(249 76% 63%);
+  --radius: 0.75rem;
 }
 
 .dark {
-  --color-background: hsl(222.2 84% 4.9%);
-  --color-foreground: hsl(210 40% 98%);
-  --color-card: hsl(222.2 84% 4.9%);
-  --color-card-foreground: hsl(210 40% 98%);
-  --color-popover: hsl(222.2 84% 4.9%);
-  --color-popover-foreground: hsl(210 40% 98%);
-  --color-primary: hsl(16 88% 62%);
+  --color-background: hsl(250 30% 6.5%);
+  --color-foreground: hsl(250 10% 93%);
+  --color-card: hsl(250 24% 10%);
+  --color-card-foreground: hsl(250 10% 93%);
+  --color-popover: hsl(250 24% 10%);
+  --color-popover-foreground: hsl(250 10% 93%);
+  --color-primary: hsl(249 80% 70%);
   --color-primary-foreground: hsl(0 0% 100%);
-  --color-secondary: hsl(217.2 32.6% 17.5%);
-  --color-secondary-foreground: hsl(210 40% 98%);
-  --color-muted: hsl(217.2 32.6% 17.5%);
-  --color-muted-foreground: hsl(215 20.2% 65.1%);
-  --color-accent: hsl(217.2 32.6% 17.5%);
-  --color-accent-foreground: hsl(210 40% 98%);
-  --color-destructive: hsl(0 62.8% 30.6%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(217.2 32.6% 17.5%);
-  --color-input: hsl(217.2 32.6% 17.5%);
-  --color-ring: hsl(16 88% 62%);
+  --color-secondary: hsl(250 22% 15%);
+  --color-secondary-foreground: hsl(250 10% 85%);
+  --color-muted: hsl(250 22% 13%);
+  --color-muted-foreground: hsl(250 10% 55%);
+  --color-accent: hsl(250 22% 15%);
+  --color-accent-foreground: hsl(250 10% 85%);
+  --color-destructive: hsl(0 62% 50%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-border: hsl(250 22% 16%);
+  --color-input: hsl(250 22% 16%);
+  --color-ring: hsl(249 80% 70%);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   @apply bg-background text-foreground;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: hsl(249 76% 63% / 0.15);
+}
+
+.dark ::selection {
+  background-color: hsl(249 80% 70% / 0.25);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(250 15% 82%);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(250 15% 70%);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(250 15% 22%);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(250 15% 30%);
 }

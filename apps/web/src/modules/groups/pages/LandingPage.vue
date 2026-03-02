@@ -1,15 +1,15 @@
 <template>
-  <div class="bg-card rounded-lg border border-border p-6 shadow-sm">
+  <div class="bg-card rounded-2xl border border-border/60 p-8 shadow-lg shadow-primary/5">
     <div v-if="mode === 'menu'" class="space-y-4">
-      <p class="text-muted-foreground text-center">Split expenses with friends</p>
+      <p class="text-muted-foreground text-center text-sm">Get started by creating or joining a group</p>
       <button
-        class="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:opacity-90"
+        class="w-full py-2.5 px-4 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors font-medium"
         @click="mode = 'create'"
       >
         Create new group
       </button>
       <button
-        class="w-full py-2 px-4 border border-border text-foreground rounded-md hover:bg-accent"
+        class="w-full py-2.5 px-4 border border-border text-foreground rounded-xl hover:bg-accent transition-colors font-medium"
         @click="mode = 'join'"
       >
         Enter invite code
@@ -22,17 +22,17 @@
         <div>
           <label class="block text-sm font-medium mb-1">Group name</label>
           <input v-model="createForm.name" type="text" required maxlength="100" placeholder="Trip to Japan"
-            class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            class="w-full px-3 py-2.5 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Your name</label>
           <input v-model="createForm.memberName" type="text" required maxlength="50" placeholder="Alice"
-            class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            class="w-full px-3 py-2.5 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Currency</label>
           <select v-model="createForm.currency"
-            class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+            class="w-full px-3 py-2.5 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors">
             <option v-for="c in CURRENCIES" :key="c.code" :value="c.code">
               {{ c.symbol }} {{ c.code }} - {{ c.name }}
             </option>
@@ -40,11 +40,11 @@
         </div>
         <p v-if="error" class="text-sm text-destructive">{{ error }}</p>
         <div class="flex gap-3">
-          <button type="button" class="px-4 py-2 text-sm border border-border rounded-md hover:bg-accent" @click="mode = 'menu'">
+          <button type="button" class="px-4 py-2 text-sm border border-border rounded-xl hover:bg-accent transition-colors" @click="mode = 'menu'">
             Back
           </button>
           <button type="submit" :disabled="loading"
-            class="flex-1 py-2 px-4 bg-primary text-primary-foreground rounded-md hover:opacity-90 disabled:opacity-50">
+            class="flex-1 py-2.5 px-4 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors disabled:opacity-50 font-medium">
             {{ loading ? "Creating..." : "Create" }}
           </button>
         </div>
@@ -57,20 +57,20 @@
         <div>
           <label class="block text-sm font-medium mb-1">Invite code</label>
           <input v-model="joinForm.inviteCode" type="text" required placeholder="Paste invite code"
-            class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            class="w-full px-3 py-2.5 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Your name</label>
           <input v-model="joinForm.name" type="text" required maxlength="50" placeholder="Bob"
-            class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+            class="w-full px-3 py-2.5 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors" />
         </div>
         <p v-if="error" class="text-sm text-destructive">{{ error }}</p>
         <div class="flex gap-3">
-          <button type="button" class="px-4 py-2 text-sm border border-border rounded-md hover:bg-accent" @click="mode = 'menu'">
+          <button type="button" class="px-4 py-2 text-sm border border-border rounded-xl hover:bg-accent transition-colors" @click="mode = 'menu'">
             Back
           </button>
           <button type="submit" :disabled="loading"
-            class="flex-1 py-2 px-4 bg-primary text-primary-foreground rounded-md hover:opacity-90 disabled:opacity-50">
+            class="flex-1 py-2.5 px-4 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors disabled:opacity-50 font-medium">
             {{ loading ? "Joining..." : "Join" }}
           </button>
         </div>

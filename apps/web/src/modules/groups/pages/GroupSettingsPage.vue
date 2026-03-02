@@ -24,7 +24,7 @@
       </div>
 
       <!-- Edit group info -->
-      <section class="rounded-lg border border-border bg-card p-6 mb-6">
+      <section class="rounded-xl border border-border/60 bg-card p-6 shadow-sm mb-6">
         <h2 class="text-lg font-semibold mb-4">General</h2>
         <form @submit.prevent="handleUpdateGroup" class="space-y-4 max-w-md">
           <div>
@@ -35,7 +35,7 @@
               type="text"
               required
               maxlength="100"
-              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             />
           </div>
           <div>
@@ -43,7 +43,7 @@
             <select
               id="settings-currency"
               v-model="groupForm.currency"
-              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             >
               <option v-for="c in CURRENCIES" :key="c.code" :value="c.code">
                 {{ c.symbol }} {{ c.code }} - {{ c.name }}
@@ -81,7 +81,7 @@
             <button
               type="submit"
               :disabled="savingGroup"
-              class="px-4 py-2 text-sm rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              class="px-4 py-2 text-sm rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors disabled:opacity-50 font-medium"
             >
               {{ savingGroup ? "Saving..." : "Save changes" }}
             </button>
@@ -91,17 +91,17 @@
       </section>
 
       <!-- Members -->
-      <section class="rounded-lg border border-border bg-card p-6 mb-6">
+      <section class="rounded-xl border border-border/60 bg-card p-6 shadow-sm mb-6">
         <h2 class="text-lg font-semibold mb-4">Members</h2>
 
-        <ul class="divide-y divide-border mb-4">
+        <ul class="divide-y divide-border/60 mb-4">
           <li
             v-for="member in store.members"
             :key="member.id"
             class="flex items-center justify-between py-3"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground shrink-0">
+              <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
                 {{ member.name.charAt(0).toUpperCase() }}
               </div>
               <div class="min-w-0">
@@ -131,13 +131,13 @@
               type="text"
               placeholder="Member name"
               required
-              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             />
           </div>
           <button
             type="submit"
             :disabled="addingMember"
-            class="px-4 py-2 text-sm rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            class="px-4 py-2 text-sm rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors disabled:opacity-50 font-medium"
           >
             Add
           </button>
@@ -145,17 +145,17 @@
       </section>
 
       <!-- Invite link -->
-      <section class="rounded-lg border border-border bg-card p-6 mb-6">
+      <section class="rounded-xl border border-border/60 bg-card p-6 shadow-sm mb-6">
         <h2 class="text-lg font-semibold mb-4">Invite Link</h2>
         <div v-if="store.currentGroup.inviteCode" class="flex items-center gap-2 max-w-lg">
           <input
             type="text"
             readonly
             :value="inviteUrl"
-            class="flex-1 rounded-md border border-input bg-muted px-3 py-2 text-sm text-foreground"
+            class="flex-1 rounded-lg border border-input bg-muted px-3 py-2.5 text-sm text-foreground"
           />
           <button
-            class="px-3 py-2 text-sm rounded-md border border-border text-foreground hover:bg-accent"
+            class="px-3 py-2 text-sm rounded-xl border border-border text-foreground hover:bg-accent transition-colors"
             @click="copyInviteUrl"
           >
             {{ copied ? "Copied" : "Copy" }}
@@ -172,7 +172,7 @@
       </section>
 
       <!-- Archive / Delete -->
-      <section class="rounded-lg border border-border bg-card p-6">
+      <section class="rounded-xl border border-border/60 bg-card p-6 shadow-sm">
         <h2 class="text-lg font-semibold mb-4 text-destructive">Danger Zone</h2>
         <div class="space-y-4">
           <div class="flex items-center justify-between">
@@ -181,7 +181,7 @@
               <p class="text-xs text-muted-foreground">Archived groups are hidden from the main list.</p>
             </div>
             <button
-              class="px-4 py-2 text-sm rounded-md border border-border text-foreground hover:bg-accent"
+              class="px-4 py-2 text-sm rounded-xl border border-border text-foreground hover:bg-accent transition-colors"
               @click="handleToggleArchive"
             >
               {{ store.currentGroup.archived ? "Unarchive" : "Archive" }}
@@ -193,7 +193,7 @@
               <p class="text-xs text-muted-foreground">This action cannot be undone.</p>
             </div>
             <button
-              class="px-4 py-2 text-sm rounded-md bg-destructive text-destructive-foreground hover:opacity-90"
+              class="px-4 py-2 text-sm rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
               @click="handleDeleteGroup"
             >
               Delete
@@ -205,21 +205,21 @@
       <!-- Delete confirmation dialog -->
       <Teleport to="body">
         <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
-          <div class="fixed inset-0 bg-black/50" @click="showDeleteConfirm = false" />
-          <div class="relative z-10 w-full max-w-sm rounded-lg border border-border bg-card p-6 shadow-lg">
+          <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" @click="showDeleteConfirm = false" />
+          <div class="relative z-10 w-full max-w-sm rounded-2xl border border-border/60 bg-card p-6 shadow-2xl">
             <h3 class="text-lg font-semibold mb-2">Delete group?</h3>
             <p class="text-sm text-muted-foreground mb-4">
               This will permanently delete <strong>{{ store.currentGroup.name }}</strong> and all its data. This action cannot be undone.
             </p>
             <div class="flex justify-end gap-3">
               <button
-                class="px-4 py-2 text-sm rounded-md border border-border text-foreground hover:bg-accent"
+                class="px-4 py-2 text-sm rounded-xl border border-border text-foreground hover:bg-accent transition-colors"
                 @click="showDeleteConfirm = false"
               >
                 Cancel
               </button>
               <button
-                class="px-4 py-2 text-sm rounded-md bg-destructive text-destructive-foreground hover:opacity-90"
+                class="px-4 py-2 text-sm rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
                 :disabled="deleting"
                 @click="confirmDelete"
               >

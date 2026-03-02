@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :to="`/groups/${expense.groupId}/expenses/${expense.id}`"
-    class="block rounded-lg border border-border bg-card p-4 transition-shadow hover:shadow-md"
+    class="block rounded-xl border border-border/60 bg-card p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
   >
     <div class="flex items-center gap-3">
       <div class="flex-1 min-w-0">

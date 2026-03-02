@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="loading && expenses.length === 0" class="space-y-3">
-      <div v-for="i in 4" :key="i" class="h-16 rounded-lg bg-muted animate-pulse" />
+      <div v-for="i in 4" :key="i" class="h-16 rounded-xl bg-muted/70 animate-pulse" />
     </div>
 
     <div v-else-if="expenses.length === 0" class="text-center py-12">
@@ -23,7 +23,7 @@
       </p>
       <RouterLink
         :to="`/groups/${groupId}/expenses/new`"
-        class="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 text-sm"
+        class="inline-block px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors text-sm font-medium"
       >
         Add first expense
       </RouterLink>
@@ -39,7 +39,7 @@
 
       <div v-if="hasMore" class="flex justify-center pt-4">
         <button
-          class="px-4 py-2 text-sm rounded-md border border-border text-foreground hover:bg-accent disabled:opacity-50"
+          class="px-4 py-2 text-sm rounded-xl border border-border text-foreground hover:bg-accent transition-colors disabled:opacity-50"
           :disabled="loadingMore"
           @click="loadMore"
         >
@@ -50,7 +50,7 @@
 
     <RouterLink
       :to="`/groups/${groupId}/expenses/new`"
-      class="fixed bottom-6 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+      class="fixed bottom-6 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
     >
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path

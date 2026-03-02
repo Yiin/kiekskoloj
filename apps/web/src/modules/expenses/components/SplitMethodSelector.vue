@@ -2,15 +2,15 @@
   <div>
     <h3 class="text-sm font-semibold text-foreground mb-3">Split Method</h3>
 
-    <div class="flex gap-1 p-1 bg-muted rounded-lg mb-4">
+    <div class="flex gap-1 p-1 bg-muted/60 rounded-xl mb-4">
       <button
         v-for="method in methods"
         :key="method.key"
         type="button"
-        class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
+        class="flex-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200"
         :class="
           modelValue === method.key
-            ? 'bg-background text-foreground shadow-sm'
+            ? 'bg-card text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         "
         @click="emit('update:modelValue', method.key)"
@@ -57,7 +57,7 @@
             max="100"
             step="0.1"
             :value="getSplitValue(m.id, 'percentage')"
-            class="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            class="w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
             placeholder="0"
             @input="onPercentageChange(m.id, $event)"
           />
@@ -85,7 +85,7 @@
           min="0"
           step="0.01"
           :value="getSplitValue(m.id, 'amount')"
-          class="flex-1 rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          class="flex-1 rounded-lg border border-input bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
           placeholder="0.00"
           @input="onAmountChange(m.id, $event)"
         />
@@ -106,7 +106,7 @@
         <div class="flex items-center gap-2">
           <button
             type="button"
-            class="w-8 h-8 rounded-md border border-border text-foreground flex items-center justify-center hover:bg-accent"
+            class="w-8 h-8 rounded-lg border border-border text-foreground flex items-center justify-center hover:bg-accent transition-colors"
             @click="adjustShares(m.id, -1)"
           >
             -
@@ -116,7 +116,7 @@
           </span>
           <button
             type="button"
-            class="w-8 h-8 rounded-md border border-border text-foreground flex items-center justify-center hover:bg-accent"
+            class="w-8 h-8 rounded-lg border border-border text-foreground flex items-center justify-center hover:bg-accent transition-colors"
             @click="adjustShares(m.id, 1)"
           >
             +

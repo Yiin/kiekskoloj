@@ -8,7 +8,7 @@
       <li
         v-for="(debt, i) in debts"
         :key="i"
-        class="flex items-center justify-between rounded-md border border-border px-4 py-3"
+        class="flex items-center justify-between rounded-xl border border-border/60 bg-card px-4 py-3 shadow-sm"
       >
         <div class="flex items-center gap-2 text-sm min-w-0">
           <span class="font-medium text-foreground truncate">{{ memberNames.get(debt.from) ?? debt.from }}</span>
@@ -21,7 +21,7 @@
           </span>
         </div>
         <button
-          class="shrink-0 ml-3 px-3 py-1 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:opacity-90"
+          class="shrink-0 ml-3 px-3 py-1 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors"
           @click="$emit('settle', debt)"
         >
           Settle

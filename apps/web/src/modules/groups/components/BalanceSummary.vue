@@ -8,11 +8,11 @@
       <li
         v-for="b in sortedBalances"
         :key="b.memberId"
-        class="flex items-center justify-between rounded-md border border-border px-4 py-3"
+        class="flex items-center justify-between rounded-xl border border-border/60 bg-card px-4 py-3 shadow-sm"
       >
         <div class="flex items-center gap-2 min-w-0">
           <div
-            class="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0"
+            class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary shrink-0"
           >
             {{ b.memberName.charAt(0).toUpperCase() }}
           </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-card rounded-lg border border-border p-6 shadow-sm max-w-md mx-auto">
+  <div class="bg-card rounded-2xl border border-border/60 p-8 shadow-lg shadow-primary/5 max-w-md mx-auto">
     <h2 class="text-xl font-semibold mb-4">Join Group</h2>
 
     <div v-if="joinedGroup" class="space-y-4 text-center">
@@ -17,11 +17,11 @@
       <div>
         <label class="block text-sm font-medium mb-1">Your name</label>
         <input v-model="name" type="text" required maxlength="50" placeholder="Bob"
-          class="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+          class="w-full px-3 py-2.5 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors" />
       </div>
       <p v-if="errorMsg" class="text-sm text-destructive">{{ errorMsg }}</p>
       <button type="submit" :disabled="loading"
-        class="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:opacity-90 disabled:opacity-50">
+        class="w-full py-2.5 px-4 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 shadow-sm shadow-primary/25 transition-colors disabled:opacity-50 font-medium">
         {{ loading ? "Joining..." : "Join" }}
       </button>
     </form>

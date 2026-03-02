@@ -14,7 +14,7 @@ export default defineConfig({
         name: "Kiekskoloj",
         short_name: "Kiekskoloj",
         description: "Split expenses with friends",
-        theme_color: "#f2774a",
+        theme_color: "#6c5ce7",
         background_color: "#ffffff",
         display: "standalone",
         icons: [
