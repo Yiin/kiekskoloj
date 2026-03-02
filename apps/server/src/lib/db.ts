@@ -9,24 +9,19 @@ sqlite.exec("PRAGMA foreign_keys = ON")
 
 // Auto-create tables if they don't exist
 const createTableSQL = `
-  CREATE TABLE IF NOT EXISTS users (
-    id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL,
-    password_hash TEXT NOT NULL, avatar_url TEXT, locale TEXT NOT NULL DEFAULT 'en',
-    created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL
-  );
   CREATE TABLE IF NOT EXISTS groups (
     id TEXT PRIMARY KEY, name TEXT NOT NULL, currency TEXT NOT NULL DEFAULT 'EUR',
     color TEXT, invite_code TEXT UNIQUE, archived INTEGER NOT NULL DEFAULT 0,
-    created_by TEXT NOT NULL REFERENCES users(id),
     created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL
   );
   CREATE TABLE IF NOT EXISTS group_members (
     id TEXT PRIMARY KEY, group_id TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
-    user_id TEXT REFERENCES users(id), name TEXT NOT NULL,
-    weight REAL NOT NULL DEFAULT 1.0, role TEXT NOT NULL DEFAULT 'member',
+    name TEXT NOT NULL, token TEXT,
+    weight REAL NOT NULL DEFAULT 1.0,
     active INTEGER NOT NULL DEFAULT 1, joined_at INTEGER NOT NULL
   );
-  CREATE UNIQUE INDEX IF NOT EXISTS group_members_group_user_idx ON group_members(group_id, user_id);
+  CREATE UNIQUE INDEX IF NOT EXISTS group_members_group_name_idx ON group_members(group_id, name);
+  CREATE INDEX IF NOT EXISTS group_members_token_idx ON group_members(token);
   CREATE TABLE IF NOT EXISTS categories (
     id TEXT PRIMARY KEY, group_id TEXT REFERENCES groups(id) ON DELETE CASCADE,
     name TEXT NOT NULL, icon TEXT, color TEXT
