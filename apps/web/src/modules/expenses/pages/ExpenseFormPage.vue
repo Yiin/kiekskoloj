@@ -319,7 +319,7 @@ async function handleSubmit() {
   submitError.value = ""
 
   const payload = {
-    comment: form.comment.trim() || null,
+    comment: form.comment.trim() || undefined,
     amount: amountCents.value,
     currency: groupCurrency.value,
     date: new Date(form.date).getTime(),
